@@ -15,6 +15,7 @@ import simplejson
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
 REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
+REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
 
 #Notes:
 #1. Could have better exception handling (i.e. some for 404, wrong password, other basic things)
@@ -165,7 +166,7 @@ def run():
 	if len(options) > 0: #must be the mail check option (because it's the only option)
 		passwd = getpass.getpass('Your reddit password please: ')
 		Red.login(username, passwd)
-		print Red.get_new_mail()
+		print (len(Red.get_new_mail()) != 0)
 	else:
 		(karma, comment_karma) = Red.get_karma(username)
 		print 'User %s has %s karma and %s comment karma' % (username, karma, comment_karma)
@@ -178,3 +179,4 @@ def usage():
 
 if __name__=='__main__':
 	run()
+
