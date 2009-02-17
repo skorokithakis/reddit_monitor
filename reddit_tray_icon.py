@@ -91,13 +91,10 @@ class RedditConfigWindow(gtk.Window):
 
 		self.set_default(ok_btn)
 		self.show_all()
-
-	def show(self):
-		self.window.show()
 		gtk.main()
 
 	def on_ok(self, widget, callback_data=None):
-		self.window.hide()
+		self.hide()
 		gtk.main_quit()
 
 	def get_username(self):
@@ -236,7 +233,6 @@ def open_url(url):
 if __name__=='__main__':
 
 	cfg_dlg = RedditConfigWindow()
-	cfg_dlg.show()
 
 	tray_icon = RedditTrayIcon(
 		cfg_dlg.get_username(),
@@ -245,6 +241,6 @@ if __name__=='__main__':
 	)
 
 	tray_icon.on_check_now()
-
+	
 	gtk.main()
 
