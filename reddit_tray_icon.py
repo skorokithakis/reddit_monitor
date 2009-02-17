@@ -40,12 +40,13 @@ class RedditConfigWindow(gtk.Window):
 		self.set_modal(True)
 		self.set_resizable(False)
 		self.set_icon_from_file(os.path.abspath(REDDIT_ICON))
+		
+		vbox = gtk.VBox(homogeneous=False, spacing=6)
+		vbox.set_border_width(6)
 
 		table = gtk.Table(rows=4, columns=2, homogeneous=False)
 		table.set_row_spacings(6)
 		table.set_col_spacings(6)
-		table.set_border_width(6)
-		self.add(table)
 
 		label_username = gtk.Label('Username:')
 		label_username.set_alignment(1, 0.5)
@@ -72,6 +73,13 @@ class RedditConfigWindow(gtk.Window):
 		self.text_interval = gtk.Entry(max=0)
 		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
 		table.attach(self.text_interval, 1, 2, 2, 3)
+		
+		vbox.pack_start(table)
+		
+		if pynotify:
+			self.check_notify = gtk.CheckButton(label='Show notifications')
+			self.check_notify.set_active(True)
+			vbox.pack_start(self.check_notify)
 
 		bbox = gtk.HButtonBox()
 		bbox.set_layout(gtk.BUTTONBOX_END)
@@ -86,14 +94,16 @@ class RedditConfigWindow(gtk.Window):
 		
 		bbox.add(close_btn)
 		bbox.add(ok_btn)
-
-		table.attach(bbox, 1, 2, 4, 5)
+		vbox.pack_start(bbox)
+		self.add(vbox)
 
 		self.set_default(ok_btn)
 		self.show_all()
 		gtk.main()
 
 	def on_ok(self, widget, callback_data=None):
+		global SHOW_NOTIFICATIONS 
+		SHOW_NOTIFICATIONS = self.check_notify.get_active()
 		self.hide()
 		gtk.main_quit()
 
@@ -192,7 +202,7 @@ class RedditTrayIcon():
 			# Add newmsgs at the beginning so the latest message is always at index 0
 			self.newmsgs = newmsgs + self.newmsgs
 
-			if pynotify:
+			if SHOW_NOTIFICATIONS:
 				latestmsg = newmsgs[0]
 				title = 'You have a new message on reddit!'
 				body  = '<b>%s</b>\n%s' % (latestmsg['subject'], latestmsg['body'])
