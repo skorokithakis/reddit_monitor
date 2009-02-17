@@ -47,17 +47,17 @@ class RedditConfigWindow(gtk.Window):
 		table.set_border_width(6)
 		self.add(table)
 
-		self.label_username = gtk.Label('Username:')
-		self.label_username.set_alignment(1, 0.5)
-		table.attach(self.label_username, 0, 1, 0, 1)
+		label_username = gtk.Label('Username:')
+		label_username.set_alignment(1, 0.5)
+		table.attach(label_username, 0, 1, 0, 1)
 
 		self.text_username = gtk.Entry(max=0)
 		self.text_username.set_text(DEFAULT_USERNAME)
 		table.attach(self.text_username, 1, 2, 0, 1)
 
-		self.label_password = gtk.Label('Password:')
-		self.label_password.set_alignment(1, 0.5)
-		table.attach(self.label_password, 0, 1, 1, 2)
+		label_password = gtk.Label('Password:')
+		label_password.set_alignment(1, 0.5)
+		table.attach(label_password, 0, 1, 1, 2)
 		
 		self.text_password = gtk.Entry(max=0)
 		self.text_password.set_text(DEFAULT_PASSWORD)
@@ -65,9 +65,9 @@ class RedditConfigWindow(gtk.Window):
 		self.text_password.set_invisible_char('*')
 		table.attach(self.text_password, 1, 2, 1, 2)
 
-		self.label_interval = gtk.Label('Interval (minutes):')
-		self.label_interval.set_alignment(1, 0.5)
-		table.attach(self.label_interval, 0, 1, 2, 3)
+		label_interval = gtk.Label('Interval (minutes):')
+		label_interval.set_alignment(1, 0.5)
+		table.attach(label_interval, 0, 1, 2, 3)
 
 		self.text_interval = gtk.Entry(max=0)
 		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
