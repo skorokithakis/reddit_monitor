@@ -26,29 +26,25 @@ DEFAULT_USERNAME       = ''
 DEFAULT_PASSWORD       = '' #obvious security flaw if you fill this in.
 DEFAULT_CHECK_INTERVAL = 10 #minutes
 
-class RedditConfigWindow:
+class RedditConfigWindow(gtk.Window):
+
+	user = None
+	passwd = None
+	interval = None
 
 	def __init__(self):
-
-		self.user = None
-		self.passwd = None
-		self.interval = None
-		self.widgets = []
-
-		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-		self.window.set_title('Reddit Tray Icon Parameters')
-		self.window.set_border_width(5)
-		self.window.set_position(gtk.WIN_POS_CENTER)
-		self.window.set_modal(True)
-		self.window.set_resizable(False)
-		self.window.set_property('skip-taskbar-hint', True)
-		icon = gtk.gdk.pixbuf_new_from_file(REDDIT_ICON)
-		self.window.set_icon_list((icon))
+		gtk.Window.__init__(self)
+		self.set_title('Reddit Tray Icon Preferences')
+		self.set_position(gtk.WIN_POS_CENTER)
+		self.set_modal(True)
+		self.set_resizable(False)
+		self.set_icon_from_file(os.path.abspath(REDDIT_ICON))
 
 		table = gtk.Table(rows=4, columns=2, homogeneous=False)
 		table.set_row_spacings(6)
 		table.set_col_spacings(6)
-		self.window.add(table)
+		table.set_border_width(6)
+		self.add(table)
 
 		self.label_username = gtk.Label('Username:')
 		self.label_username.set_alignment(1, 0.5)
@@ -76,7 +72,6 @@ class RedditConfigWindow:
 		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
 		table.attach(self.text_interval, 1, 2, 2, 3)
 
-		#Add ok and quit buttons
 		bbox = gtk.HButtonBox()
 		bbox.set_layout(gtk.BUTTONBOX_END)
 		bbox.set_spacing(8)
@@ -84,7 +79,6 @@ class RedditConfigWindow:
 		ok_btn = gtk.Button(stock=gtk.STOCK_OK)
 		ok_btn.connect("clicked", self.on_ok)
 		ok_btn.set_flags(gtk.CAN_DEFAULT)
-		self.window.set_default(ok_btn)
 
 		close_btn = gtk.Button(stock=gtk.STOCK_CANCEL)
 		close_btn.connect("clicked", self.on_cancel)
@@ -94,8 +88,8 @@ class RedditConfigWindow:
 
 		table.attach(bbox, 1, 2, 4, 5)
 
-		self.window.set_default(ok_btn)
-		table.show_all()
+		self.set_default(ok_btn)
+		self.show_all()
 
 	def show(self):
 		self.window.show()
@@ -235,3 +229,4 @@ if __name__=='__main__':
 	tray_icon.on_check_now()
 
 	gtk.main()
+
