@@ -7,6 +7,7 @@ import gobject
 import sys
 import time
 import subprocess
+<<<<<<< HEAD:reddit_tray_icon.py
 
 import reddit
 
@@ -19,6 +20,12 @@ except ImportError:
 
 if not pynotify:
 	print 'Notice: pynotify could not be loaded. Balloon notifications will be unavailable.'
+=======
+import webbrowser
+
+import reddit
+
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 
 REDDIT_ICON            = 'icons/reddit.png'
 NEW_MAIL_ICON          = 'icons/new_mail.png'
@@ -26,14 +33,26 @@ BUSY_ICON              = 'icons/busy.gif'
 DEFAULT_USERNAME       = ''
 DEFAULT_PASSWORD       = '' #obvious security flaw if you fill this in.
 DEFAULT_CHECK_INTERVAL = 10 #minutes
+REDDIT_INBOX_USER_URL  = 'http://www.reddit.com/message/inbox'
 
 class RedditConfigWindow(gtk.Window):
 
+<<<<<<< HEAD:reddit_tray_icon.py
 	user = None
 	passwd = None
 	interval = None
 
 	def __init__(self):
+=======
+	def __init__(self, features):
+		gtk.Window.__init__(self)
+
+		self.user = None
+		self.passwd = None
+		self.interval = None
+		self.features = features
+
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 		gtk.Window.__init__(self)
 		self.set_title('Reddit Tray Icon Preferences')
 		self.set_position(gtk.WIN_POS_CENTER)
@@ -55,6 +74,7 @@ class RedditConfigWindow(gtk.Window):
 
 		self.text_username = gtk.Entry(max=0)
 		self.text_username.set_text(DEFAULT_USERNAME)
+		self.text_username.set_activates_default(True)
 		table.attach(self.text_username, 1, 2, 0, 1)
 
 		label_password = gtk.Label('Password:')
@@ -63,6 +83,7 @@ class RedditConfigWindow(gtk.Window):
 		
 		self.text_password = gtk.Entry(max=0)
 		self.text_password.set_text(DEFAULT_PASSWORD)
+		self.text_password.set_activates_default(True)
 		self.text_password.set_visibility(False)
 		self.text_password.set_invisible_char('*')
 		table.attach(self.text_password, 1, 2, 1, 2)
@@ -73,14 +94,25 @@ class RedditConfigWindow(gtk.Window):
 
 		self.text_interval = gtk.Entry(max=0)
 		self.text_interval.set_text(str(DEFAULT_CHECK_INTERVAL))
+		self.text_interval.set_activates_default(True)
 		table.attach(self.text_interval, 1, 2, 2, 3)
 		
 		vbox.pack_start(table)
 		
+<<<<<<< HEAD:reddit_tray_icon.py
 		if pynotify:
 			self.check_notify = gtk.CheckButton(label='Show notifications')
 			self.check_notify.set_active(True)
 			vbox.pack_start(self.check_notify)
+=======
+		if 'pynotify' in features:
+			self.notify = gtk.CheckButton(label='Show notifications')
+			self.notify.set_active(True)
+			vbox.pack_start(self.notify)
+		else:
+			self.get_pynotify = gtk.Label('With pynotify you can have pop-up notifications!')
+			vbox.pack_start(self.get_pynotify)
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 
 		bbox = gtk.HButtonBox()
 		bbox.set_layout(gtk.BUTTONBOX_END)
@@ -100,6 +132,13 @@ class RedditConfigWindow(gtk.Window):
 
 		self.set_default(ok_btn)
 		self.show_all()
+<<<<<<< HEAD:reddit_tray_icon.py
+=======
+		gtk.main()
+
+	def show(self):
+		self.window.show()
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 		gtk.main()
 
 	def on_ok(self, widget, callback_data=None):
@@ -107,6 +146,10 @@ class RedditConfigWindow(gtk.Window):
 		SHOW_NOTIFICATIONS = self.check_notify.get_active()
 		self.hide()
 		gtk.main_quit()
+
+	def on_cancel(self, widget, callback_data=None):
+		gtk.main_quit()
+		sys.exit(0)
 
 	def get_username(self):
 		return self.text_username.get_text()
@@ -117,9 +160,11 @@ class RedditConfigWindow(gtk.Window):
 	def get_interval(self):
 		return self.text_interval.get_text()
 
-	def on_cancel(self, widget, callback_data=None):
-		gtk.main_quit()
-		sys.exit(0)
+	def get_notifications(self):
+		if 'pynotify' in self.features:
+			return self.notify.get_active()
+		else:
+			return False
 
 
 class RedditTrayIcon():
@@ -127,12 +172,25 @@ class RedditTrayIcon():
 	checking = False
 	newmsgs = []
 
+<<<<<<< HEAD:reddit_tray_icon.py
 	def __init__(self, user, password, interval):
+=======
+	def __init__(self, features, user, password, interval, pynotify):
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 
 		self.reddit = reddit.Reddit()
 		self.reddit.login(user, password)
 		self.interval = interval
+		
+		self.pynotify = pynotify
+		if 'pynotify' in features:		
+			pynotify.init('Reddit')
 
+<<<<<<< HEAD:reddit_tray_icon.py
+=======
+		self.features = features
+
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 		#create the tray icon
 		self.tray_icon = gtk.StatusIcon()
 		self.tray_icon.connect('activate', self.on_check_now)
@@ -174,7 +232,14 @@ class RedditTrayIcon():
 		self.menu.popup(None, None, None, button, activate_time)
 	
 	def on_inbox(self, event=None):
+<<<<<<< HEAD:reddit_tray_icon.py
 		open_url('http://www.reddit.com/message/inbox')
+=======
+		if 'xdg-open' in self.features:
+			subprocess.call(['xdg-open', REDDIT_INBOX_USER_URL])
+		else:
+			webbrowser.open(REDDIT_INBOX_USER_URL)
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 
 	def on_reset(self, event=None):
 		self.newmsgs = []
@@ -203,12 +268,16 @@ class RedditTrayIcon():
 			# Add newmsgs at the beginning so the latest message is always at index 0
 			self.newmsgs = newmsgs + self.newmsgs
 
+<<<<<<< HEAD:reddit_tray_icon.py
 			if SHOW_NOTIFICATIONS:
+=======
+			if 'pynotify' in self.features and self.pynotify != None:
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 				latestmsg = newmsgs[0]
 				title = 'You have a new message on reddit!'
 				body  = '<b>%s</b>\n%s' % (latestmsg['subject'], latestmsg['body'])
 
-				balloon = pynotify.Notification(title, body)
+				balloon = self.pynotify.Notification(title, body)
 				balloon.set_timeout(60*1000)
 				balloon.set_icon_from_pixbuf(self.reddit_icon)
 				balloon.attach_to_status_icon(self.tray_icon)
@@ -230,6 +299,7 @@ class RedditTrayIcon():
 
 		# Keep timeout alive
 		return True
+<<<<<<< HEAD:reddit_tray_icon.py
 
 
 def open_url(url):
@@ -248,14 +318,48 @@ def open_url(url):
 if __name__=='__main__':
 
 	cfg_dlg = RedditConfigWindow()
+=======
+
+def run():
+
+	#Quick test of our environment.
+	#I want to avoid an application that
+	#throws ugly messages boxes.
+
+	features = []
+
+	try:
+		import pynotify
+		features.append('pynotify')
+	except ImportError:
+		pynotify = None
+
+	#check for xdg-open
+	search_path = os.environ.get('PATH').split(':')
+	for path in search_path:
+		if os.path.exists(os.path.join(path, 'xdg-open')):
+			features.append('xdg-open')
+
+	cfg_dlg = RedditConfigWindow(features)
+
+	if not cfg_dlg.get_notifications():
+		pynotify = None	
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
 
 	tray_icon = RedditTrayIcon(
+		features,
 		cfg_dlg.get_username(),
 		cfg_dlg.get_password(),
-		int(cfg_dlg.get_interval()) * 60000
+		int(cfg_dlg.get_interval()) * 60000,
+		pynotify
 	)
 
 	tray_icon.on_check_now()
 	
 	gtk.main()
 
+<<<<<<< HEAD:reddit_tray_icon.py
+=======
+if __name__=='__main__':
+	run()
+>>>>>>> 30f4d05e6f768d9684b658e885908e598d4da38d:reddit_tray_icon.py
