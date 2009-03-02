@@ -43,6 +43,7 @@ class Application(object):
     tray_icon = None
     menu = None
     
+    reddit = None
     interval = None
     username = None
     password = None
@@ -52,7 +53,14 @@ class Application(object):
     comment_karma = None
     
     def __init__(self):
+        self.reddit = reddit.Reddit()
         self.config_dialog = ConfigDialog(self)
+    
+    def do_login(self, username, password):
+        self.username = username
+        self.password = password
+        
+        self.reddit.login(username, password)
 
 
 class ConfigDialog(object):
@@ -92,10 +100,15 @@ class ConfigDialog(object):
         gtk.main_quit()
     
     def ok(self, widget):
-        self.widgets.get_object('message_label').set_text('Logging in to reddit...')
         self.widgets.get_object('message_frame').show()
+        self.widgets.get_object('message_label').set_text('Logging in to reddit...')
         
         self.notify = self.widgets.get_object('notify_checkbutton').get_active()
+        gtk.main_quit()
+        
+        self.app.do_login(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text())
+        
+        gtk.main()
 
 
 def TrayIcon(app):
