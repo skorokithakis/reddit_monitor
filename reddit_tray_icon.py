@@ -106,6 +106,7 @@ class ConfigDialog(object):
     
     def cancel(self, widget, event=None):
         gtk.main_quit()
+        sys.exit(0)
     
     def ok(self, widget):
         self.widgets.get_object('ok_button').set_sensitive(False)
@@ -187,6 +188,10 @@ class TooltipWidget(gtk.HBox):
 
 
 def main(args):
+    if gtk.check_version(2, 8, 0):
+        print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.8 or higher'
+        sys.exit(0)
+    
     app = Application()
     gtk.main()
 
