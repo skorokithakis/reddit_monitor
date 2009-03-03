@@ -55,12 +55,6 @@ class Application(object):
     def __init__(self):
         self.reddit = reddit.Reddit()
         self.config_dialog = ConfigDialog(self)
-    
-    def do_login(self, username, password):
-        self.username = username
-        self.password = password
-        
-        self.reddit.login(username, password)
 
 
 class ConfigDialog(object):
