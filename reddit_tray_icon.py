@@ -188,8 +188,8 @@ class TooltipWidget(gtk.HBox):
 
 
 def main(args):
-    if gtk.check_version(2, 8, 0):
-        print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.8 or higher'
+    if gtk.check_version(2, 12, 0):
+        print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher'
         sys.exit(0)
     
     app = Application()
