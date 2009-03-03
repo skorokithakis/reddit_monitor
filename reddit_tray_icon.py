@@ -97,6 +97,10 @@ class ConfigDialog(object):
         if not DEFAULT_USERNAME:
             self.widgets.get_object('ok_button').set_sensitive(False)
         
+        self.widgets.get_object('username_entry').set_activates_default(True)
+        self.widgets.get_object('password_entry').set_activates_default(True)
+
+        
         self.config_dialog = self.widgets.get_object('window')
         self.config_dialog.show()
     
