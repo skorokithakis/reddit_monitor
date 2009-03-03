@@ -100,15 +100,13 @@ class ConfigDialog(object):
         gtk.main_quit()
     
     def ok(self, widget):
+        self.widgets.get_object('ok_button').set_sensitive(False)
         self.widgets.get_object('message_frame').show()
         self.widgets.get_object('message_label').set_text('Logging in to reddit...')
         
-        self.notify = self.widgets.get_object('notify_checkbutton').get_active()
-        gtk.main_quit()
+        self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
         
-        self.app.do_login(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text())
-        
-        gtk.main()
+        # Use an idle handler to login to reddit without blocking the Gtk main loop.
 
 
 def TrayIcon(app):
