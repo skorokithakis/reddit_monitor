@@ -77,6 +77,7 @@ class ConfigDialog(object):
         signals = {
             'on_cancel_button_activate' : self.cancel,
             'on_ok_button_activate'     : self.ok,
+            'on_entry_changed'          : self.entry_contents_changed,
         }
         self.widgets.connect_signals(signals)
         
@@ -93,8 +94,17 @@ class ConfigDialog(object):
         if DEFAULT_PASSWORD:
             self.widgets.get_object('password_entry').set_text(DEFAULT_PASSWORD)
         
+        if not DEFAULT_USERNAME:
+            self.widgets.get_object('ok_button').set_sensitive(False)
+        
         self.config_dialog = self.widgets.get_object('window')
         self.config_dialog.show()
+    
+    def entry_contents_changed(self, widget):
+        if not len(self.widgets.get_object('username_entry').get_text()) or not len(self.widgets.get_object('password_entry').get_text()):
+            self.widgets.get_object('ok_button').set_sensitive(False)
+        else:
+            self.widgets.get_object('ok_button').set_sensitive(True)
     
     def cancel(self, widget, event=None):
         gtk.main_quit()
