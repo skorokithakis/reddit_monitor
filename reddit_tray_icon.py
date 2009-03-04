@@ -161,7 +161,7 @@ class TooltipWidget(gtk.HBox):
     app = None
     
     def __init__(self, parent):
-        gtk.Window.__init__(self)
+        gtk.HBox.__init__(self)
         
         self.app = parent
         
@@ -189,6 +189,7 @@ class TooltipWidget(gtk.HBox):
         self.karma_label.set_markup('Comment karma: <b>%d</b>' % comment_karma)
         
         vbox = gtk.VBox()
+        vbox.set_spacing(6)
         vbox.pack_start(self.user_label)
         vbox.pack_start(self.messages_label)
         vbox.pack_start(self.karma_label)
@@ -196,10 +197,15 @@ class TooltipWidget(gtk.HBox):
         
         self.pack-start(self.icon)
         self.pack_start(vbox)
+        self.set_spacing(6)
+        self.show()
 
 
 def main(args):
     if gtk.check_version(2, 12, 0):
+        # This will return None if you have GTK+ version 2.12 or higher. It will
+        # return a less useful error string than the one we're going to display
+        # below otherwise.
         print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher.'
         sys.exit(0)
     
