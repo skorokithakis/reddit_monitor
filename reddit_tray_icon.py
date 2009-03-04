@@ -75,6 +75,7 @@ class ConfigDialog(object):
         }
         self.widgets.connect_signals(signals)
         
+        self.widgets.get_object('message_label').set_line_wrap(True)
         self.widgets.get_object('message_frame').hide()
         
         if not pynotify:
@@ -189,7 +190,7 @@ class TooltipWidget(gtk.HBox):
 
 def main(args):
     if gtk.check_version(2, 12, 0):
-        print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher'
+        print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher.'
         sys.exit(0)
     
     app = Application()
