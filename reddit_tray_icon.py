@@ -92,9 +92,14 @@ class ConfigDialog(object):
         if not DEFAULT_USERNAME:
             self.widgets.get_object('ok_button').set_sensitive(False)
         
+        if DEFAULT_CHECK_INTERVAL:
+            self.widgets.get_object('update_spinbutton').set_value(DEFAULT_CHECK_INTERVAL)
+        else:
+            self.widgets.get_object('update_spinbutton').set_value(10)
+        
         self.widgets.get_object('username_entry').set_activates_default(True)
         self.widgets.get_object('password_entry').set_activates_default(True)
-
+        self.widgets.get_object('update_spinbutton').set_activates_default(True)
         
         self.config_dialog = self.widgets.get_object('window')
         self.config_dialog.show()
@@ -115,6 +120,7 @@ class ConfigDialog(object):
         self.widgets.get_object('message_label').set_text('Logging in to reddit...')
         
         self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
+        self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
         
         # Use an idle handler to login to reddit without blocking the Gtk main loop.
 
