@@ -101,8 +101,8 @@ class ConfigDialog(object):
         self.widgets.get_object('password_entry').set_activates_default(True)
         self.widgets.get_object('update_spinbutton').set_activates_default(True)
         
-        self.config_dialog = self.widgets.get_object('window')
-        self.config_dialog.show()
+        self.app.config_dialog = self.widgets.get_object('window')
+        self.app.config_dialog.show()
     
     def entry_contents_changed(self, widget):
         if not len(self.widgets.get_object('username_entry').get_text()) >= 3 or not len(self.widgets.get_object('password_entry').get_text()) >= 3:
@@ -115,6 +115,10 @@ class ConfigDialog(object):
         sys.exit(0)
     
     def ok(self, widget):
+        self.widgets.get_object('username_entry').set_sensitive(False)
+        self.widgets.get_object('password_entry').set_sensitive(False)
+        self.widgets.get_object('notify_checkbutton').set_sensitive(False)
+        self.widgets.get_object('update_spinbutton').set_sensitive(False)
         self.widgets.get_object('ok_button').set_sensitive(False)
         self.widgets.get_object('message_frame').show()
         self.widgets.get_object('message_label').set_text('Logging in to reddit...')
