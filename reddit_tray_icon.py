@@ -100,7 +100,7 @@ class ConfigDialog(object):
         self.config_dialog.show()
     
     def entry_contents_changed(self, widget):
-        if not len(self.widgets.get_object('username_entry').get_text()) or not len(self.widgets.get_object('password_entry').get_text()):
+        if not len(self.widgets.get_object('username_entry').get_text()) >= 3 or not len(self.widgets.get_object('password_entry').get_text()) >= 3:
             self.widgets.get_object('ok_button').set_sensitive(False)
         else:
             self.widgets.get_object('ok_button').set_sensitive(True)
