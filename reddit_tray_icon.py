@@ -8,6 +8,7 @@ import subprocess
 
 import gtk
 import gobject
+import glib
 
 import reddit
 
@@ -42,8 +43,8 @@ class Application(object):
     tooltip = None
     tray_icon = None
     menu = None
-    
     reddit = None
+    
     interval = None
     username = None
     password = None
@@ -51,6 +52,10 @@ class Application(object):
     mail = None
     karma = None
     comment_karma = None
+    messages = None
+    
+    # A simple lock
+    checking = False
     
     def __init__(self):
         self.reddit = reddit.Reddit()
@@ -120,6 +125,7 @@ class ConfigDialog(object):
         self.widgets.get_object('notify_checkbutton').set_sensitive(False)
         self.widgets.get_object('update_spinbutton').set_sensitive(False)
         self.widgets.get_object('ok_button').set_sensitive(False)
+        
         self.widgets.get_object('message_frame').show()
         self.widgets.get_object('message_label').set_text('Logging in to reddit...')
         
@@ -127,6 +133,20 @@ class ConfigDialog(object):
         self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
         
         # Use an idle handler to login to reddit without blocking the Gtk main loop.
+        glib.idle_add(self.login, self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text())
+    
+    def login(self, username, password):
+        if self.app.checking:
+            return True
+        else:
+            self.app.checking = True
+            self.app.reddit.login(username, password)
+            try:
+                self.app.messages = self.app.reddit.get_new_mail()
+            except:
+                self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
+            self.app.checking = False
+            return False
 
 
 def TrayIcon(app):
