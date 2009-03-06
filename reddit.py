@@ -27,6 +27,9 @@ REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
 class RedditNotLoggedInException:
     pass
 
+class RedditBadJSONException:
+    pass
+
 class Reddit:
 
     def __init__(self):
@@ -137,7 +140,7 @@ class Reddit:
             dump = open('.dump','w')
             dump.write(json_data)
             dump.close()
-            raise Exception('Bad JSON returned')
+            raise RedditBadJSONException
 
         return newmsgs
 
