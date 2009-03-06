@@ -135,7 +135,7 @@ class ConfigDialog(object):
             self.app.reddit.login(username, password)
             
             try:
-                self.messages = self.app.reddit.get_new_mail()
+                self.app.messages = self.app.reddit.get_new_mail()
             except:
                 self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
 
