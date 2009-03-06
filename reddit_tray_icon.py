@@ -126,21 +126,19 @@ class ConfigDialog(object):
         self.widgets.get_object('update_spinbutton').set_sensitive(False)
         self.widgets.get_object('ok_button').set_sensitive(False)
         
-        self.widgets.get_object('message_label').set_text('Logging in to reddit...')
         self.widgets.get_object('message_frame').show()
+        self.widgets.get_object('message_label').set_text('Logging in to reddit...')
         
         self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
         self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
         
-        # This is a hack. Basically we wait a little bit for any drawing events
-        # to finish and then run the login method.
-        # TODO: replace this with a worker thread.
-        glib.timeout_add(200, self.login, self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text())
+        # Use an idle handler to login to reddit without blocking the Gtk main loop.
+        glib.idle_add(self.login, self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text())
     
     def login(self, username, password):
         if self.app.checking:
             return True
-        else:            
+        else:
             self.app.checking = True
             self.app.reddit.login(username, password)
             try:
