@@ -108,6 +108,13 @@ class ConfigDialog(object):
         self.app.config_dialog = self.widgets.get_object('window')
         self.app.config_dialog.show()
     
+    def set_sensitive(self, bool):
+        self.widgets.get_object('username_entry').set_sensitive(bool)
+        self.widgets.get_object('password_entry').set_sensitive(bool)
+        self.widgets.get_object('notify_checkbutton').set_sensitive(bool)
+        self.widgets.get_object('update_spinbutton').set_sensitive(bool)
+        self.widgets.get_object('ok_button').set_sensitive(bool)
+    
     def entry_contents_changed(self, widget):
         if not len(self.widgets.get_object('username_entry').get_text()) >= 3 or not len(self.widgets.get_object('password_entry').get_text()) >= 3:
             self.widgets.get_object('ok_button').set_sensitive(False)
@@ -119,11 +126,7 @@ class ConfigDialog(object):
         sys.exit(0)
     
     def ok(self, widget):
-        self.widgets.get_object('username_entry').set_sensitive(False)
-        self.widgets.get_object('password_entry').set_sensitive(False)
-        self.widgets.get_object('notify_checkbutton').set_sensitive(False)
-        self.widgets.get_object('update_spinbutton').set_sensitive(False)
-        self.widgets.get_object('ok_button').set_sensitive(False)
+        self.set_sensitive(False)
         
         self.widgets.get_object('message_frame').show()
         self.widgets.get_object('message_label').set_text('Logging in to reddit...')
@@ -136,8 +139,12 @@ class ConfigDialog(object):
             
             try:
                 self.app.messages = self.app.reddit.get_new_mail()
+                self.app.username = username
+                sle.fapp.password = password
             except:
                 self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
+                self.set_sensitive(True)
+                self.widgets.get_object('username_entry').grab_focus()
 
         self.app.worker = threading.Thread(target=login, args=(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text()))
         self.app.worker.start()
@@ -150,19 +157,26 @@ def TrayIcon(app):
         return GtkTrayIcon(app)
 
 
-class EggTrayIcon(gtk.EventBox):
+class EggTrayIcon(egg.trayicon.TrayIcon):
     
     app = None
+    icon = None
     
     def __init__(self, parent):
-        gtk.EventBox.__init__(self)
+        egg.trayicon.TrayIcon.__init__(self, 'Reddit Monitor')
         
         self.app = parent
+        self.icon = gtk.image_new_from_file(os.path.abspath(REDDIT_ICON))
+        
+        event_box = gtk.EventBox()
+        event_box.add(self.icon)
+        self.add(event_box)
 
 
 class GtkTrayIcon(gtk.StatusIcon):
     
     app = None
+    icon = None
     
     def __init__(self, parent):
         gtk.StatusIcon.__init__(self)
