@@ -5,6 +5,7 @@ import sys
 import os
 import time
 import subprocess
+import threading
 
 import gtk
 import gobject
@@ -44,6 +45,7 @@ class Application(object):
     tray_icon = None
     menu = None
     reddit = None
+    worker = None
     
     interval = None
     username = None
@@ -53,9 +55,6 @@ class Application(object):
     karma = None
     comment_karma = None
     messages = None
-    
-    # A simple lock
-    checking = False
     
     def __init__(self):
         self.reddit = reddit.Reddit()
@@ -132,21 +131,16 @@ class ConfigDialog(object):
         self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
         self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
         
-        # Use an idle handler to login to reddit without blocking the Gtk main loop.
-        glib.idle_add(self.login, self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text())
-    
-    def login(self, username, password):
-        if self.app.checking:
-            return True
-        else:
-            self.app.checking = True
+        def login(username, password):
             self.app.reddit.login(username, password)
+            
             try:
-                self.app.messages = self.app.reddit.get_new_mail()
+                self.messages = self.app.reddit.get_new_mail()
             except:
                 self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
-            self.app.checking = False
-            return False
+
+        self.app.worker = threading.Thread(target=login, args=(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text()))
+        self.app.worker.start()
 
 
 def TrayIcon(app):
@@ -228,6 +222,8 @@ def main(args):
         # below otherwise.
         print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher.'
         sys.exit(0)
+    
+    gtk.gdk.threads_init()
     
     app = Application()
     gtk.main()
