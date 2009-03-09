@@ -55,6 +55,7 @@ class Application(object):
     karma = None
     comment_karma = None
     messages = None
+    checking = False
     
     def __init__(self):
         self.reddit = reddit.Reddit()
@@ -93,7 +94,7 @@ class ConfigDialog(object):
         if DEFAULT_PASSWORD:
             self.widgets.get_object('password_entry').set_text(DEFAULT_PASSWORD)
         
-        if not DEFAULT_USERNAME:
+        if not DEFAULT_USERNAME and not DEFAULT_PASSWORD:
             self.widgets.get_object('ok_button').set_sensitive(False)
         
         if DEFAULT_CHECK_INTERVAL:
@@ -106,6 +107,7 @@ class ConfigDialog(object):
         self.widgets.get_object('update_spinbutton').set_activates_default(True)
         
         self.app.config_dialog = self.widgets.get_object('window')
+        self.app.config_dialog.set_default(self.widgets.get_object('ok_button'))
         self.app.config_dialog.show()
     
     def set_sensitive(self, bool):
@@ -126,30 +128,37 @@ class ConfigDialog(object):
         sys.exit(0)
     
     def ok(self, widget):
-        self.set_sensitive(False)
-        
-        self.widgets.get_object('message_frame').show()
-        self.widgets.get_object('message_label').set_text('Logging in to reddit...')
-        
-        self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
-        self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
-        
-        def login(username, password):
-             # This is run in a new thread to avoid blocking the UI if
-             # connecting to reddit takes a little while.
+        if not self.app.checking:
+            self.app.checking = True
             
-            try:
-                self.app.reddit.login(username, password)
-                self.app.username = username
-                self.app.password = password
-                self.widgets.get_object('message_label').set_markup('Log in to reddit as <i>%s</i> was a success.' % self.app.username)
-            except reddit.RedditInvalidUsernamePasswordException:
-                self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
-                self.set_sensitive(True)
-                self.widgets.get_object('username_entry').grab_focus()
+            self.set_sensitive(False)
+            
+            self.widgets.get_object('message_frame').show()
+            self.widgets.get_object('message_label').set_text('Logging in to reddit...')
+            
+            self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
+            self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
+            
+            def login(username, password):
+                 # This is run in a new thread to avoid blocking the UI if
+                 # connecting to reddit takes a little while.
+                
+                try:
+                    self.app.reddit.login(username, password)
+                    self.app.username = username
+                    self.app.password = password
+                    self.widgets.get_object('message_label').set_markup('Log in to reddit as <i>%s</i> was a success.' % self.app.username)
+                    
+                    self.app.tray_icon = TrayIcon(self.app)
+                except reddit.RedditInvalidUsernamePasswordException:
+                    self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
+                    self.set_sensitive(True)
+                    self.widgets.get_object('username_entry').grab_focus()
+                finally:
+                    self.app.checking = False
 
-        self.app.worker = threading.Thread(target=login, args=(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text()))
-        self.app.worker.start()
+            self.app.worker = threading.Thread(target=login, args=(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text()))
+            self.app.worker.start()
 
 
 def TrayIcon(app):
@@ -172,7 +181,9 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         
         event_box = gtk.EventBox()
         event_box.add(self.icon)
+        
         self.add(event_box)
+        self.show_all()
 
 
 class GtkTrayIcon(gtk.StatusIcon):
@@ -184,6 +195,11 @@ class GtkTrayIcon(gtk.StatusIcon):
         gtk.StatusIcon.__init__(self)
         
         self.app = parent
+        self.icon = gtk.image_new_from_file(os.path.abspath(REDDIT_ICON))
+        
+        self.set_from_pixbuf(self.icon)
+        
+        self.show()
 
 
 class TooltipWidget(gtk.HBox):
