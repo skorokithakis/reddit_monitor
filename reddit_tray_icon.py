@@ -145,6 +145,8 @@ class ConfigDialog(object):
                 
                 try:
                     self.app.reddit.login(username, password)
+                    self.app.karma, self.app.comment_karma = self.app.reddit.get_karma()
+                    self.app.messages = self.app.reddit.get_new_mail()
                     self.app.username = username
                     self.app.password = password
                     self.widgets.get_object('message_label').set_markup('You are now logged in to reddit as <i>%s</i>.' % self.app.username)
@@ -182,8 +184,15 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         event_box = gtk.EventBox()
         event_box.add(self.icon)
         
+        self.icon.set_has_tooltip(True)
+        self.icon.connect('query-tooltip', self.show_tooltip)
+        
         self.add(event_box)
         self.show_all()
+    
+    def show_tooltip(self, widget, x, y, keyboard_mode, tooltip):
+        tooltip.set_custom(TooltipWidget(self.app))
+        return True
 
 
 class GtkTrayIcon(gtk.StatusIcon):
@@ -217,33 +226,35 @@ class TooltipWidget(gtk.HBox):
         self.messages_label = gtk.Label()
         self.user_label = gtk.Label()
         
-        self.user_label.set_markup('<b><big>%s</big></b>' % user)
+        self.karma_label.set_alignment(0, 0.5)
+        self.comment_karma_label.set_alignment(0, 0.5)
+        self.messages_label.set_alignment(0, 0.5)
+        
+        self.user_label.set_markup('<b><big>%s</big></b>' % self.app.username)
+        
+        self.karma_label.set_markup('Karma: <b>%d</b>' % self.app.karma)
+        self.comment_karma_label.set_markup('Comment karma: <b>%d</b>' % self.app.comment_karma)
         
         if self.app.messages:
             self.messages_label.show()
             if len(msgs) == 1:
-                self.messages_label.set_markup('You have <b>1</b> new message!')
+                self.messages_label.set_markup('New messages: <b>1</b>')
             else:
-                self.messages_label.set_markup('You have <b>%d</b> new messages!' % len(msgs))
+                self.messages_label.set_markup('New messages: <b>%d</b>' % len(self.app.messages))
         else:
-            self.messages_label.hide()
-        
-        karma, comment_karma = reddit.get_karma()
-        
-        self.karma_label.set_markup('Karma: <b>%d</b>' % karma)
-        self.karma_label.set_markup('Comment karma: <b>%d</b>' % comment_karma)
+            self.messages_label.set_markup('New messages: <b>0</b>')
         
         vbox = gtk.VBox()
-        vbox.set_spacing(6)
+        vbox.set_spacing(4)
         vbox.pack_start(self.user_label)
-        vbox.pack_start(self.messages_label)
         vbox.pack_start(self.karma_label)
         vbox.pack_start(self.comment_karma_label)
+        vbox.pack_start(self.messages_label)
         
-        self.pack-start(self.icon)
+        self.pack_start(self.icon)
         self.pack_start(vbox)
         self.set_spacing(6)
-        self.show()
+        self.show_all()
 
 
 def main(args):
