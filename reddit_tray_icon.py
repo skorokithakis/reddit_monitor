@@ -135,16 +135,15 @@ class ConfigDialog(object):
         self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
         
         def login(username, password):
-             # This is run in a new thread to avoid blocking the UI if c
+             # This is run in a new thread to avoid blocking the UI if
              # connecting to reddit takes a little while.
             
-            self.app.reddit.login(username, password)
-            
             try:
-                self.app.messages = self.app.reddit.get_new_mail()
+                self.app.reddit.login(username, password)
                 self.app.username = username
                 self.app.password = password
-            except reddit.RedditBadJSONException:
+                self.widgets.get_object('message_label').set_markup('Log in to reddit as <i>%s</i> was a success.' % self.app.username)
+            except reddit.RedditInvalidUsernamePasswordException:
                 self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
                 self.set_sensitive(True)
                 self.widgets.get_object('username_entry').grab_focus()
