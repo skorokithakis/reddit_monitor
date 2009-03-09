@@ -24,6 +24,9 @@ REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
 #   trick it. (e.g. put /static/mailgrey/png) in a comment and it will wrongly think you have no new
 #   mail.
 
+class RedditInvalidUsernamePasswordException:
+    pass
+
 class RedditNotLoggedInException:
     pass
 
@@ -85,10 +88,16 @@ class Reddit:
 
         try:
             req = self.Request(REDDIT_LOGIN_URL, params, REDDIT_USER_AGENT)
-            self.urlopen(req).read()
+            retval = self.urlopen(req).read()
         except Exception, e:
             print "F*CK: %s", e.message
             return False
+        
+        if retval.find('invalid password') != -1:
+            self.logged_in = False
+            raise RedditInvalidUsernamePasswordException()
+        else:
+            self.logged_in = True
 
         return True
 
