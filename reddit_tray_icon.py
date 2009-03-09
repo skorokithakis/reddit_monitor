@@ -145,11 +145,13 @@ class ConfigDialog(object):
                 
                 try:
                     self.app.reddit.login(username, password)
+                    self.widgets.get_object('message_label').set_text('Fetching karma scores...')
                     self.app.karma, self.app.comment_karma = self.app.reddit.get_karma()
+                    self.widgets.get_object('message_label').set_text('Checking for new messages...')
                     self.app.messages = self.app.reddit.get_new_mail()
                     self.app.username = username
                     self.app.password = password
-                    self.widgets.get_object('message_label').set_markup('You are now logged in to reddit as <i>%s</i>.' % self.app.username)
+                    self.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % self.app.username)
                     
                     self.app.tray_icon = TrayIcon(self.app)
                 except reddit.RedditInvalidUsernamePasswordException:
