@@ -147,7 +147,7 @@ class ConfigDialog(object):
                     self.app.reddit.login(username, password)
                     self.app.username = username
                     self.app.password = password
-                    self.widgets.get_object('message_label').set_markup('Log in to reddit as <i>%s</i> was a success.' % self.app.username)
+                    self.widgets.get_object('message_label').set_markup('You are now logged in to reddit as <i>%s</i>.' % self.app.username)
                     
                     self.app.tray_icon = TrayIcon(self.app)
                 except reddit.RedditInvalidUsernamePasswordException:
