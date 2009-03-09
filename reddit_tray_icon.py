@@ -219,8 +219,7 @@ class TooltipWidget(gtk.HBox):
         
         self.user_label.set_markup('<b><big>%s</big></b>' % user)
         
-        msgs = reddit.get_new_mail()
-        if msgs:
+        if self.app.messages:
             self.messages_label.show()
             if len(msgs) == 1:
                 self.messages_label.set_markup('You have <b>1</b> new message!')
