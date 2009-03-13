@@ -239,7 +239,7 @@ class TooltipWidget(gtk.HBox):
         
         if self.app.messages:
             self.messages_label.show()
-            if len(msgs) == 1:
+            if len(self.app.messages) == 1:
                 self.messages_label.set_markup('New messages: <b>1</b>')
             else:
                 self.messages_label.set_markup('New messages: <b>%d</b>' % len(self.app.messages))
