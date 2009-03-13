@@ -206,11 +206,22 @@ class GtkTrayIcon(gtk.StatusIcon):
         gtk.StatusIcon.__init__(self)
         
         self.app = parent
-        self.icon = gtk.image_new_from_file(os.path.abspath(REDDIT_ICON))
+        self.icon = gtk.gdk.pixbuf_new_from_file(os.path.abspath(REDDIT_ICON))
         
         self.set_from_pixbuf(self.icon)
         
-        self.show()
+        if self.app.messages:
+            if len(self.app.messages) == 1:
+                messages_string = 'New messages: 1'
+            else:
+                messages_string = 'New messages: %d' % len(self.app.messages)
+        else:
+            messages_string = 'New messages: 0'
+        
+        tooltip_string = '%s\nKarma: %d\nComment karma: %d\n%s' % (self.app.username, self.app.karma, self.app.comment_karma, messages_string)
+        self.set_tooltip(tooltip_string)
+        
+        self.set_visible(True)
 
 
 class TooltipWidget(gtk.HBox):
