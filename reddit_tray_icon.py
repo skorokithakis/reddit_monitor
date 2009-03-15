@@ -119,9 +119,8 @@ class ConfigDialog(object):
         self.widgets.get_object('password_entry').set_activates_default(True)
         self.widgets.get_object('update_spinbutton').set_activates_default(True)
         
-        self.app.config_dialog = self.widgets.get_object('window')
-        self.app.config_dialog.set_default(self.widgets.get_object('ok_button'))
-        self.app.config_dialog.show()
+        self.widgets.get_object('window').set_default(self.widgets.get_object('ok_button'))
+        self.widgets.get_object('window').show()
     
     def set_sensitive(self, bool):
         self.widgets.get_object('username_entry').set_sensitive(bool)
@@ -167,6 +166,7 @@ class ConfigDialog(object):
                     self.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % self.app.username)
                     
                     self.app.tray_icon = TrayIcon(self.app)
+                    self.widgets.get_object('window').hide()
                 except reddit.RedditInvalidUsernamePasswordException:
                     self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
                     self.set_sensitive(True)
