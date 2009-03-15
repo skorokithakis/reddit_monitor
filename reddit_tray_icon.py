@@ -197,7 +197,7 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         self.app = parent
         self.menu = PopupMenu(parent)
         
-        pb = gtk.gdk.pixbuf_new_from_file_at_size(os.path.abspath(REDDIT_ICON), 24, 24)
+        pb = gtk.gdk.pixbuf_new_from_file_at_size(REDDIT_ICON, 24, 24)
         self.icon = gtk.image_new_from_pixbuf(pb)
         
         event_box = gtk.EventBox()
@@ -217,6 +217,10 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
     def button_pressed(self, widget, event):
         if event.button == 3:
             self.menu.popup(widget, event.button, event.time)
+    
+    def set_icon(self, path):
+        pb = gtk.gdk.pixbuf_new_from_file_at_size(path, 24, 24)
+        self.icon = gtk.image_new_from_pixbuf(pb)
 
 
 class GtkTrayIcon(gtk.StatusIcon):
@@ -229,7 +233,7 @@ class GtkTrayIcon(gtk.StatusIcon):
         gtk.StatusIcon.__init__(self)
         
         self.app = parent
-        self.icon = gtk.gdk.pixbuf_new_from_file(os.path.abspath(REDDIT_ICON))
+        self.icon = gtk.gdk.pixbuf_new_from_file(REDDIT_ICON)
         self.menu = PopupMenu(parent)
         
         self.set_from_pixbuf(self.icon)
@@ -248,6 +252,10 @@ class GtkTrayIcon(gtk.StatusIcon):
         self.set_tooltip(tooltip_string)
         
         self.set_visible(True)
+    
+    def set_icon(self, path):
+        self.icon = gtk.gdk.pixbuf_new_from_file(path)
+        self.set_from_pixbuf(self.icon)
 
 
 class PopupMenu(object):
@@ -299,7 +307,7 @@ class TooltipWidget(gtk.HBox):
         
         self.app = parent
         
-        self.icon = gtk.image_new_from_file(os.path.abspath(REDDIT_ICON))
+        self.icon = gtk.image_new_from_file(REDDIT_ICON)
         self.karma_label = gtk.Label()
         self.comment_karma_label = gtk.Label()
         self.messages_label = gtk.Label()
