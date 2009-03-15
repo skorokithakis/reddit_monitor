@@ -179,6 +179,7 @@ class ConfigDialog(object):
 
 
 def TrayIcon(app):
+    egg.trayicon = None
     if egg.trayicon:
         return EggTrayIcon(app)
     else:
@@ -189,11 +190,13 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
     
     app = None
     icon = None
+    menu = None
     
     def __init__(self, parent):
         egg.trayicon.TrayIcon.__init__(self, 'Reddit Monitor')
         
         self.app = parent
+        self.menu = PopupMenu(parent)
         
         pb = gtk.gdk.pixbuf_new_from_file_at_size(os.path.abspath(REDDIT_ICON), 24, 24)
         self.icon = gtk.image_new_from_pixbuf(pb)
@@ -216,14 +219,18 @@ class GtkTrayIcon(gtk.StatusIcon):
     
     app = None
     icon = None
+    menu = None
     
     def __init__(self, parent):
         gtk.StatusIcon.__init__(self)
         
         self.app = parent
         self.icon = gtk.gdk.pixbuf_new_from_file(os.path.abspath(REDDIT_ICON))
+        self.menu = PopupMenu(parent)
         
         self.set_from_pixbuf(self.icon)
+        
+        self.connect('popup-menu', self.menu.popup)
         
         if self.app.messages:
             if len(self.app.messages) == 1:
@@ -249,14 +256,14 @@ class PopupMenu(object):
         self.app = parent
         
         actions = [
-            ('Inbox', gtk.STOCK_REFRESH, None, None, None, self.app.go_to_inbox),
-            ('Refresh', gtk.STOCK_REFRESH, None, None, None, self.app.update),
-            ('Reset', gtk.STOCK_CLEAR, "Reset", "s", "Reset the new messages notification.", self.app.clear_messages),
+            ('Inbox', gtk.STOCK_HOME, 'Go to inbox', None, None, self.app.go_to_inbox),
+            ('Refresh', gtk.STOCK_REFRESH, 'Check for new messages', None, None, self.app.update),
+            ('Reset', gtk.STOCK_CLEAR, 'Clear new messages', None, None, self.app.clear_messages),
             ('Quit', gtk.STOCK_QUIT, None, None, None, self.app.quit)
         ]
         
         self.action_group = gtk.ActionGroup('Reddit Monitor')
-        self.actiongroup.add_actions(actions)
+        self.action_group.add_actions(actions)
         
         ui = """
             <ui>
@@ -272,10 +279,11 @@ class PopupMenu(object):
         """
         
         self.ui_manager = gtk.UIManager()
-        self.ui_manager.add_ui_string(ui)
+        self.ui_manager.insert_action_group(self.action_group, 0)
+        self.ui_manager.add_ui_from_string(ui)
     
-    def popup(self, parent_menu_shell, parent_menu_item, func, button, activate_time, data=None):
-        self.ui_manager.get_widget("/TrayMenu").popup(parent_menu_shell, parent_menu_item, func, button, activate_time)
+    def popup(self, status_icon, button, activate_time, data=None):
+        self.ui_manager.get_widget("/TrayMenu").popup(None, None, None, button, activate_time)
 
 
 class TooltipWidget(gtk.HBox):
