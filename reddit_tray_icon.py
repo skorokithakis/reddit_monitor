@@ -17,8 +17,6 @@ import gtk
 import gobject
 import glib
 
-import reddit
-
 # Needed to display notifications when a new message comes in.
 # Without, the icon will just change.
 try:
@@ -32,6 +30,8 @@ try:
     import egg.trayicon
 except ImportError:
     egg.trayicon = None
+
+import reddit
 
 
 UI_DEFINITION           = os.path.abspath('reddit_tray_icon.ui')
@@ -158,8 +158,8 @@ class ConfigDialog(object):
             self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
             
             def login(username, password):
-                 # This is run in a new thread to avoid blocking the UI if
-                 # connecting to reddit takes a little while.
+                # This is run in a new thread to avoid blocking the UI if
+                # connecting to reddit takes a little while.
                 
                 try:
                     self.app.reddit.login(username, password)
@@ -270,8 +270,8 @@ class PopupMenu(object):
         
         actions = [
             ('Inbox', gtk.STOCK_HOME, 'Go to inbox', None, None, self.app.go_to_inbox),
-            ('Refresh', gtk.STOCK_REFRESH, 'Check for new messages', None, None, self.app.update),
-            ('Reset', gtk.STOCK_CLEAR, 'Clear new messages', None, None, self.app.clear_messages),
+            ('Refresh', gtk.STOCK_REFRESH, 'Check for messages', None, None, self.app.update),
+            ('Reset', gtk.STOCK_CLEAR, 'Mark as read', None, None, self.app.clear_messages),
             ('Quit', gtk.STOCK_QUIT, None, None, None, self.app.quit)
         ]
         
@@ -361,4 +361,3 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
-
