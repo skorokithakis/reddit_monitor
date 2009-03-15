@@ -7,6 +7,12 @@ import time
 import subprocess
 import threading
 
+# Renamed in Python 2.6
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
 import gtk
 import gobject
 import glib
@@ -302,38 +308,38 @@ class TooltipWidget(gtk.HBox):
         
         self.app = parent
         
-        self.icon = gtk.image_new_from_file(REDDIT_ICON)
-        self.karma_label = gtk.Label()
-        self.comment_karma_label = gtk.Label()
-        self.messages_label = gtk.Label()
-        self.user_label = gtk.Label()
+        icon = gtk.image_new_from_file(REDDIT_ICON)
+        karma_label = gtk.Label()
+        comment_karma_label = gtk.Label()
+        messages_label = gtk.Label()
+        user_label = gtk.Label()
         
-        self.karma_label.set_alignment(0, 0.5)
-        self.comment_karma_label.set_alignment(0, 0.5)
-        self.messages_label.set_alignment(0, 0.5)
+        karma_label.set_alignment(0, 0.5)
+        comment_karma_label.set_alignment(0, 0.5)
+        messages_label.set_alignment(0, 0.5)
         
-        self.user_label.set_markup('<b><big>%s</big></b>' % self.app.username)
+        user_label.set_markup('<b><big>%s</big></b>' % self.app.username)
         
-        self.karma_label.set_markup('Karma: <b>%d</b>' % self.app.karma)
-        self.comment_karma_label.set_markup('Comment karma: <b>%d</b>' % self.app.comment_karma)
+        karma_label.set_markup('Karma: <b>%d</b>' % self.app.karma)
+        comment_karma_label.set_markup('Comment karma: <b>%d</b>' % self.app.comment_karma)
         
         if self.app.messages:
             self.messages_label.show()
             if len(self.app.messages) == 1:
-                self.messages_label.set_markup('New messages: <b>1</b>')
+                messages_label.set_markup('New messages: <b>1</b>')
             else:
-                self.messages_label.set_markup('New messages: <b>%d</b>' % len(self.app.messages))
+                messages_label.set_markup('New messages: <b>%d</b>' % len(self.app.messages))
         else:
-            self.messages_label.set_markup('New messages: <b>0</b>')
+            messages_label.set_markup('New messages: <b>0</b>')
         
         vbox = gtk.VBox()
         vbox.set_spacing(4)
-        vbox.pack_start(self.user_label)
-        vbox.pack_start(self.karma_label)
-        vbox.pack_start(self.comment_karma_label)
-        vbox.pack_start(self.messages_label)
+        vbox.pack_start(user_label)
+        vbox.pack_start(karma_label)
+        vbox.pack_start(comment_karma_label)
+        vbox.pack_start(messages_label)
         
-        self.pack_start(self.icon)
+        self.pack_start(icon)
         self.pack_start(vbox)
         self.set_spacing(6)
         self.show_all()
