@@ -179,7 +179,6 @@ class ConfigDialog(object):
 
 
 def TrayIcon(app):
-    egg.trayicon = None
     if egg.trayicon:
         return EggTrayIcon(app)
     else:
@@ -203,6 +202,7 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         
         event_box = gtk.EventBox()
         event_box.add(self.icon)
+        event_box.connect('button-press-event', self.button_pressed)
         
         self.icon.set_has_tooltip(True)
         self.icon.connect('query-tooltip', self.show_tooltip)
@@ -213,6 +213,10 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
     def show_tooltip(self, widget, x, y, keyboard_mode, tooltip):
         tooltip.set_custom(TooltipWidget(self.app))
         return True
+    
+    def button_pressed(self, widget, event):
+        if event.button == 3:
+            self.menu.popup(widget, event.button, event.time)
 
 
 class GtkTrayIcon(gtk.StatusIcon):
@@ -282,7 +286,7 @@ class PopupMenu(object):
         self.ui_manager.insert_action_group(self.action_group, 0)
         self.ui_manager.add_ui_from_string(ui)
     
-    def popup(self, status_icon, button, activate_time, data=None):
+    def popup(self, widget, button, activate_time, data=None):
         self.ui_manager.get_widget("/TrayMenu").popup(None, None, None, button, activate_time)
 
 
