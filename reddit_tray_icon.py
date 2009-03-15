@@ -60,6 +60,19 @@ class Application(object):
     def __init__(self):
         self.reddit = reddit.Reddit()
         self.config_dialog = ConfigDialog(self)
+    
+    def quit(self, widget):
+        gtk.main_quit()
+        sys.exit(0)
+    
+    def update(self, widget):
+        return
+    
+    def clear_messages(self, widget):
+        self.messages = []
+    
+    def go_to_inbox(self, widget):
+        return
 
 
 class ConfigDialog(object):
@@ -224,6 +237,45 @@ class GtkTrayIcon(gtk.StatusIcon):
         self.set_tooltip(tooltip_string)
         
         self.set_visible(True)
+
+
+class PopupMenu(object):
+    
+    app = None
+    ui_manager = None
+    action_group = None
+    
+    def __init__(self, parent):
+        self.app = parent
+        
+        actions = [
+            ('Inbox', gtk.STOCK_REFRESH, None, None, None, self.app.go_to_inbox),
+            ('Refresh', gtk.STOCK_REFRESH, None, None, None, self.app.update),
+            ('Reset', gtk.STOCK_CLEAR, "Reset", "s", "Reset the new messages notification.", self.app.clear_messages),
+            ('Quit', gtk.STOCK_QUIT, None, None, None, self.app.quit)
+        ]
+        
+        self.action_group = gtk.ActionGroup('Reddit Monitor')
+        self.actiongroup.add_actions(actions)
+        
+        ui = """
+            <ui>
+                <popup name='TrayMenu'>
+                    <menuitem action='Inbox' />
+                    <separator/>
+                    <menuitem action='Refresh' />
+                    <menuitem action='Reset' />
+                    <separator/>
+                    <menuitem action='Quit' />
+                </popup>
+            </ui>
+        """
+        
+        self.ui_manager = gtk.UIManager()
+        self.ui_manager.add_ui_string(ui)
+    
+    def popup(self, parent_menu_shell, parent_menu_item, func, button, activate_time, data=None):
+        self.ui_manager.get_widget("/TrayMenu").popup(parent_menu_shell, parent_menu_item, func, button, activate_time)
 
 
 class TooltipWidget(gtk.HBox):
