@@ -197,8 +197,7 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         self.app = parent
         self.menu = PopupMenu(parent)
         
-        pb = gtk.gdk.pixbuf_new_from_file_at_size(REDDIT_ICON, 24, 24)
-        self.icon = gtk.image_new_from_pixbuf(pb)
+        self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(REDDIT_ICON, 24, 24))
         
         event_box = gtk.EventBox()
         event_box.add(self.icon)
@@ -219,24 +218,21 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
             self.menu.popup(widget, event.button, event.time)
     
     def set_icon(self, path):
-        pb = gtk.gdk.pixbuf_new_from_file_at_size(path, 24, 24)
-        self.icon = gtk.image_new_from_pixbuf(pb)
+        self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(path, 24, 24))
 
 
 class GtkTrayIcon(gtk.StatusIcon):
     
     app = None
-    icon = None
     menu = None
     
     def __init__(self, parent):
         gtk.StatusIcon.__init__(self)
         
         self.app = parent
-        self.icon = gtk.gdk.pixbuf_new_from_file(REDDIT_ICON)
         self.menu = PopupMenu(parent)
         
-        self.set_from_pixbuf(self.icon)
+        self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(REDDIT_ICON))
         
         self.connect('popup-menu', self.menu.popup)
         
@@ -254,8 +250,7 @@ class GtkTrayIcon(gtk.StatusIcon):
         self.set_visible(True)
     
     def set_icon(self, path):
-        self.icon = gtk.gdk.pixbuf_new_from_file(path)
-        self.set_from_pixbuf(self.icon)
+        self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(path))
 
 
 class PopupMenu(object):
