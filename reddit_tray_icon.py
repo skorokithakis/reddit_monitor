@@ -181,7 +181,9 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         egg.trayicon.TrayIcon.__init__(self, 'Reddit Monitor')
         
         self.app = parent
-        self.icon = gtk.image_new_from_file(os.path.abspath(REDDIT_ICON))
+        
+        pb = gtk.gdk.pixbuf_new_from_file_at_size(os.path.abspath(REDDIT_ICON), 24, 24)
+        self.icon = gtk.image_new_from_pixbuf(pb)
         
         event_box = gtk.EventBox()
         event_box.add(self.icon)
