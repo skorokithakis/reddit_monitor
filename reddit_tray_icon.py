@@ -6,6 +6,7 @@ import os
 import time
 import subprocess
 import threading
+import webbrowser
 
 # Renamed in Python 2.6
 try:
@@ -43,6 +44,10 @@ DEFAULT_PASSWORD        = '' # Obvious security flaw if you fill this in.
 DEFAULT_CHECK_INTERVAL  = 10 # Minutes
 REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
 
+# This will be set to True when the program is run, if xdg-open is found
+# somewhere in the path.
+XDG_OPEN                = False
+
 
 class Application(object):
     
@@ -78,7 +83,7 @@ class Application(object):
         self.messages = []
     
     def go_to_inbox(self, widget):
-        return
+        open_url(REDDIT_INBOX_USER_URL)
 
 
 class ConfigDialog(object):
@@ -345,6 +350,13 @@ class TooltipWidget(gtk.HBox):
         self.show_all()
 
 
+def open_url(url):
+    if XDG_OPEN:
+        subprocess.call(['xdg-open', REDDIT_INBOX_USER_URL])
+    else:
+        webbrowser.open(REDDIT_INBOX_USER_URL)
+
+
 def main(args):
     if gtk.check_version(2, 12, 0):
         # This will return None if you have GTK+ version 2.12 or higher. It will
@@ -352,6 +364,12 @@ def main(args):
         # below otherwise.
         print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher.'
         sys.exit(0)
+    
+    # Check to see if we have xdg-open.
+    paths = os.environ.get('PATH').split(':')
+    for path in paths:
+        if os.path.exists(os.path.join(path, 'xdg-open')):
+            XDG_OPEN = True
     
     gtk.gdk.threads_init()
     
