@@ -57,6 +57,7 @@ class Application(object):
     menu = None
     reddit = None
     worker = None
+    timer = None
     
     interval = None
     username = None
@@ -76,7 +77,7 @@ class Application(object):
         gtk.main_quit()
         sys.exit(0)
     
-    def update(self, widget):
+    def update(self, widget=None):
         if not self.checking:
             self.checking = True
             
@@ -86,7 +87,7 @@ class Application(object):
                 # This is run in a new thread to avoid blocking the UI if
                 # connecting to reddit takes a little while.
                 
-                self.app.karma, self.app.comment_karma = self.app.reddit.get_karma()
+                self.karma, self.comment_karma = self.reddit.get_karma()
                 self.messages = self.reddit.get_new_mail()
                 
                 if self.messages:
@@ -98,6 +99,8 @@ class Application(object):
 
             self.worker = threading.Thread(target=check)
             self.worker.start()
+        
+        return True
     
     def clear_messages(self, widget):
         self.messages = []
@@ -181,7 +184,7 @@ class ConfigDialog(object):
             self.widgets.get_object('message_label').set_text('Logging in to reddit...')
             
             self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
-            self.app.interval = self.widgets.get_object('update_spinbutton').get_value()
+            self.app.interval = int(self.widgets.get_object('update_spinbutton').get_value()) * 60000
             
             def login(username, password):
                 # This is run in a new thread to avoid blocking the UI if
@@ -199,6 +202,7 @@ class ConfigDialog(object):
                     
                     self.app.tray_icon = TrayIcon(self.app)
                     self.widgets.get_object('window').hide()
+                    self.app.timer = glib.timeout_add(self.app.interval, self.app.update)
                 except reddit.RedditInvalidUsernamePasswordException:
                     self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
                     self.set_sensitive(True)
