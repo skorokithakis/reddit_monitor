@@ -77,10 +77,31 @@ class Application(object):
         sys.exit(0)
     
     def update(self, widget):
-        return
+        if not self.checking:
+            self.checking = True
+            
+            self.tray_icon.set_icon(BUSY_ICON)
+            
+            def check():
+                # This is run in a new thread to avoid blocking the UI if
+                # connecting to reddit takes a little while.
+                
+                self.app.karma, self.app.comment_karma = self.app.reddit.get_karma()
+                self.messages = self.reddit.get_new_mail()
+                
+                if self.messages:
+                    self.tray_icon.set_icon(NEW_MAIL_ICON)
+                else:
+                    self.tray_icon.set_icon(REDDIT_ICON)
+                
+                self.checking = False
+
+            self.worker = threading.Thread(target=check)
+            self.worker.start()
     
     def clear_messages(self, widget):
         self.messages = []
+        self.tray_icon.set_icon(REDDIT_ICON)
     
     def go_to_inbox(self, widget):
         open_url(REDDIT_INBOX_USER_URL)
@@ -229,7 +250,7 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
             self.menu.popup(widget, event.button, event.time)
     
     def set_icon(self, path):
-        self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(path, 24, 24))
+        self.icon.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(path, 24, 24))
 
 
 class GtkTrayIcon(gtk.StatusIcon):
