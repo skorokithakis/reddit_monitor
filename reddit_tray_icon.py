@@ -39,8 +39,6 @@ UI_DEFINITION           = os.path.abspath('reddit_tray_icon.ui')
 REDDIT_ICON             = os.path.abspath('icons/reddit.png')
 NEW_MAIL_ICON           = os.path.abspath('icons/new_mail.png')
 BUSY_ICON               = os.path.abspath('icons/busy.gif')
-DEFAULT_USERNAME        = ''
-DEFAULT_PASSWORD        = '' # Obvious security flaw if you fill this in.
 DEFAULT_CHECK_INTERVAL  = 10 # Minutes
 REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
 
@@ -93,11 +91,11 @@ class Application(object):
             os.remove(config_file)
         
         parser = configparser.SafeConfigParser()
-        parser.add_seciton('Reddit')
+        parser.add_section('Reddit')
         parser.set('Reddit', 'username', self.username)
-        parser.set('Reddit', 'interval', self.interval)
-        parser.set('Reddit', 'notify', self.notify)
-        parser.write(open(config_file), 'w')
+        parser.set('Reddit', 'interval', str(self.interval))
+        parser.set('Reddit', 'notify', str(self.notify))
+        parser.write(open(config_file, 'w'))
         
     
     def quit(self, widget):
@@ -183,21 +181,18 @@ class ConfigDialog(object):
         if not pynotify:
             self.widgets.get_object('notify_checkbutton').set_active(False)
             self.widgets.get_object('notify_checkbutton').hide()
+        
+        if self.app.config:
+            self.widgets.get_object('username_entry').set_text(self.app.config.get('Reddit', 'username'))
+            self.widgets.get_object('update_spinbutton').set_value(self.app.config.getint('Reddit', 'interval') / 60000)
+            self.widgets.get_object('notify_checkbutton').set_active(self.app.config.getboolean('Reddit', 'notify'))
+            self.widgets.get_object('password_entry').grab_focus()
         else:
+            # Default values:
+            self.widgets.get_object('update_spinbutton').set_value(10)
             self.widgets.get_object('notify_checkbutton').set_active(True)
         
-        if DEFAULT_USERNAME:
-            self.widgets.get_object('username_entry').set_text(DEFAULT_USERNAME)
-        if DEFAULT_PASSWORD:
-            self.widgets.get_object('password_entry').set_text(DEFAULT_PASSWORD)
-        
-        if not DEFAULT_USERNAME and not DEFAULT_PASSWORD:
-            self.widgets.get_object('ok_button').set_sensitive(False)
-        
-        if DEFAULT_CHECK_INTERVAL:
-            self.widgets.get_object('update_spinbutton').set_value(DEFAULT_CHECK_INTERVAL)
-        else:
-            self.widgets.get_object('update_spinbutton').set_value(10)
+        self.widgets.get_object('ok_button').set_sensitive(False)
         
         self.widgets.get_object('username_entry').set_activates_default(True)
         self.widgets.get_object('password_entry').set_activates_default(True)
