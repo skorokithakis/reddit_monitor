@@ -103,7 +103,7 @@ class Application(object):
         
         return True
     
-    def clear_messages(self, widget):
+    def clear_messages(self, widget=None):
         self.messages = []
         self.tray_icon.set_icon(REDDIT_ICON)
     
@@ -115,13 +115,21 @@ class Application(object):
             latest_message = self.messages[len(self.messages) - 1]
             
             notification_body = 'from <b>%s</b>\n\n%s' % (latest_message['author'], latest_message['body'])
-            
             self.notification = pynotify.Notification(latest_message['subject'], notification_body)
             self.notification.add_action('home', 'Inbox', self.inbox_clicked)
+            
+            if latest_message['was_comment']:
+                self.notification.add_action('context', 'Context', self.context_clicked, latest_message['context'])
+            
             self.notification.show()
     
     def inbox_clicked(self, n, action):
         open_url(REDDIT_INBOX_USER_URL)
+        self.clear_messages()
+    
+    def context_clicked(self, n, action, context):
+        open_url('http://www.reddit.com' + context)
+        self.clear_messages()
 
 
 class ConfigDialog(object):
