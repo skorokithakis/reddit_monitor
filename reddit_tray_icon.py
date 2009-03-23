@@ -60,6 +60,7 @@ class Application(object):
     timer = None
     notification = None
     
+    config = None
     interval = None
     username = None
     password = None
@@ -71,8 +72,19 @@ class Application(object):
     checking = False
     
     def __init__(self):
+        self.config = self.load_config()
         self.reddit = reddit.Reddit()
         self.config_dialog = ConfigDialog(self)
+    
+    def load_config(self):
+        config_file = os.path.expanduser('~/.config/reddit_monitor')
+        
+        if not os.path.exists(config_file):
+            return None
+        else:
+            parser = configparser.SafeConfigParser()
+            parser.read([config_file])
+            return parser
     
     def quit(self, widget):
         gtk.main_quit()
