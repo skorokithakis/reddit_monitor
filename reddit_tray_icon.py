@@ -58,6 +58,7 @@ class Application(object):
     reddit = None
     worker = None
     timer = None
+    notification = None
     
     interval = None
     username = None
@@ -91,7 +92,7 @@ class Application(object):
                 self.messages = self.reddit.get_new_mail()
                 if self.messages:
                     self.tray_icon.set_icon(NEW_MAIL_ICON)
-                    notify(self.app.messages)
+                    self.show_notification()
                 else:
                     self.tray_icon.set_icon(REDDIT_ICON)
                 
@@ -107,6 +108,19 @@ class Application(object):
         self.tray_icon.set_icon(REDDIT_ICON)
     
     def go_to_inbox(self, widget):
+        open_url(REDDIT_INBOX_USER_URL)
+    
+    def show_notification(self):
+        if self.messages and self.notify:
+            latest_message = self.messages[len(self.messages) - 1]
+            
+            notification_body = 'from <b>%s</b>\n\n%s' % (latest_message['author'], latest_message['body'])
+            
+            self.notification = pynotify.Notification(latest_message['subject'], notification_body)
+            self.notification.add_action('home', 'Inbox', self.inbox_clicked)
+            self.notification.show()
+    
+    def inbox_clicked(self, n, action):
         open_url(REDDIT_INBOX_USER_URL)
 
 
@@ -215,7 +229,7 @@ class ConfigDialog(object):
 
 
 def TrayIcon(app):
-    notify(app.messages)
+    app.show_notification()
     
     if egg.trayicon:
         return EggTrayIcon(app)
@@ -390,22 +404,6 @@ def open_url(url):
         webbrowser.open(url)
 
 
-def notify(messages):
-    if messages:
-        latest_message = messages[len(messages) - 1]
-        
-        notification = pynotify.Notification(latest_message['subject'], 'from <b>%s</b>\n\n%s' % (latest_message['author'], latest_message['body']))
-        notification.set_timeout(15000)
-        notification.set_urgency(pynotify.URGENCY_NORMAL)
-        notification.set_category('presence.online')
-        
-        # TODO: The button shows up, but the function never gets called for
-        # some fucking reason.
-        notification.add_action('home', 'Inbox', open_url, REDDIT_INBOX_USER_URL)
-        
-        notification.show()
-
-
 def main(args):
     if gtk.check_version(2, 12, 0):
         # This will return None if you have GTK+ version 2.12 or higher. It will
@@ -420,9 +418,9 @@ def main(args):
         if os.path.exists(os.path.join(path, 'xdg-open')):
             XDG_OPEN = True
     
-    gtk.gdk.threads_init()
-    
     pynotify.init('Reddit Monitor')
+    
+    gtk.gdk.threads_init()
     
     app = Application()
     gtk.main()
