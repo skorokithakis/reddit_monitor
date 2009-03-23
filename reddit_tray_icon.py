@@ -86,7 +86,22 @@ class Application(object):
             parser.read([config_file])
             return parser
     
+    def save_config(self):
+        config_file = os.path.expanduser('~/.config/reddit_monitor')
+        
+        if os.path.exists(config_file):
+            os.remove(config_file)
+        
+        parser = configparser.SafeConfigParser()
+        parser.add_seciton('Reddit')
+        parser.set('Reddit', 'username', self.username)
+        parser.set('Reddit', 'interval', self.interval)
+        parser.set('Reddit', 'notify', self.notify)
+        parser.write(open(config_file), 'w')
+        
+    
     def quit(self, widget):
+        self.save_config()
         gtk.main_quit()
         sys.exit(0)
     
