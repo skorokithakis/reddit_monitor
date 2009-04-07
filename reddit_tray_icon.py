@@ -16,7 +16,11 @@ except ImportError:
 
 import gtk
 import gobject
-import glib
+
+try:
+    import glib
+except ImportError:
+    glib.timeout_add = gobject.timeout_add
 
 # Needed to display notifications when a new message comes in.
 # Without, the icon will just change.
