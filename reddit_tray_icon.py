@@ -447,12 +447,12 @@ def main(args):
         sys.exit(0)
     
     # Check to see if we have xdg-open.
-    paths = os.environ.get('PATH').split(':')
-    for path in paths:
+    for path in os.environ.get('PATH').split(':'):
         if os.path.exists(os.path.join(path, 'xdg-open')):
             XDG_OPEN = True
     
-    pynotify.init('Reddit Monitor')
+    if pynotify:
+        pynotify.init('Reddit Monitor')
     
     gtk.gdk.threads_init()
     
