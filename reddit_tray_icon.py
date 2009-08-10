@@ -19,8 +19,9 @@ import gobject
 
 try:
     import glib
+    TIMEOUT_ADD = glib.timeout_add
 except ImportError:
-    glib.timeout_add = gobject.timeout_add
+    TIMEOUT_ADD = gobject.timeout_add
 
 # Needed to display notifications when a new message comes in.
 # Without, the icon will just change.
@@ -250,7 +251,7 @@ class ConfigDialog(object):
                     
                     self.app.tray_icon = TrayIcon(self.app)
                     self.widgets.get_object('window').hide()
-                    self.app.timer = glib.timeout_add(self.app.interval, self.app.update)
+                    self.app.timer = TIMEOUT_ADD(self.app.interval, self.app.update)
                 except reddit.RedditInvalidUsernamePasswordException:
                     self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
                     self.set_sensitive(True)
