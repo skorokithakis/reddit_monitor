@@ -7,6 +7,7 @@ import time
 import subprocess
 import threading
 import webbrowser
+import time
 
 # Renamed in Python 2.6
 try:
@@ -20,8 +21,10 @@ import gobject
 try:
     import glib
     TIMEOUT_ADD = glib.timeout_add
+    IDLE_ADD = glib.idle_add
 except ImportError:
     TIMEOUT_ADD = gobject.timeout_add
+    IDLE_ADD = gobject.idle_add
 
 # Needed to display notifications when a new message comes in.
 # Without, the icon will just change.
@@ -73,6 +76,7 @@ class Application(object):
     comment_karma = None
     messages = None
     checking = False
+    logged_in = False
     
     def __init__(self):
         self.config = self.load_config()
@@ -235,9 +239,22 @@ class ConfigDialog(object):
             self.app.notify = self.widgets.get_object('notify_checkbutton').get_active()
             self.app.interval = int(self.widgets.get_object('update_spinbutton').get_value()) * 60000
             
+            def check_done():
+                if self.app.logged_in:
+                    self.app.tray_icon = TrayIcon(self.app)
+                    self.widgets.get_object('window').hide()
+                    self.app.timer = TIMEOUT_ADD(self.app.interval, self.app.update)
+                    return False
+                else:
+                    return True
+            
+            IDLE_ADD(check_done)
+            
             def login(username, password):
                 # This is run in a new thread to avoid blocking the UI if
                 # connecting to reddit takes a little while.
+                
+                self.app.logged_in = False
                 
                 try:
                     self.app.reddit.login(username, password)
@@ -249,16 +266,16 @@ class ConfigDialog(object):
                     self.app.password = password
                     self.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % self.app.username)
                     
-                    self.app.tray_icon = TrayIcon(self.app)
-                    self.widgets.get_object('window').hide()
-                    self.app.timer = TIMEOUT_ADD(self.app.interval, self.app.update)
+                    self.app.logged_in = True
                 except reddit.RedditInvalidUsernamePasswordException:
                     self.widgets.get_object('message_label').set_text('Log in failed. Please ensure that your username and password are correct.')
                     self.set_sensitive(True)
                     self.widgets.get_object('username_entry').grab_focus()
+                    
+                    self.app.logged_in = False
                 finally:
                     self.app.checking = False
-
+                    
             self.app.worker = threading.Thread(target=login, args=(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text()))
             self.app.worker.start()
 
