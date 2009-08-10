@@ -7,7 +7,6 @@ import time
 import subprocess
 import threading
 import webbrowser
-import time
 
 # Renamed in Python 2.6
 try:
