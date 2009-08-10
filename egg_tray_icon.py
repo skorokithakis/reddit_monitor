@@ -1,5 +1,7 @@
 import gtk, egg
 
+from reddit_tray_icon import PopupMenu, NEW_MAIL_ICON, REDDIT_ICON
+
 class EggTrayIcon(egg.trayicon.TrayIcon):
     
     app = None
