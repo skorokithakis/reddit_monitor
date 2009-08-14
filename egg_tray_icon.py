@@ -63,8 +63,10 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         
         if self.app.messages:
             self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(NEW_MAIL_ICON, 24, 24))
+            self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
         else:
             self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(REDDIT_ICON, 24, 24))
+            self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
         
         event_box = gtk.EventBox()
         event_box.add(self.icon)

@@ -282,7 +282,7 @@ class ConfigDialog(object):
 
 def TrayIcon(app):
     app.show_notification()
-    
+    egg = None
     if egg:
         from egg_tray_icon import EggTrayIcon
         return EggTrayIcon(app)
@@ -301,19 +301,19 @@ class GtkTrayIcon(gtk.StatusIcon):
         self.app = parent
         self.menu = PopupMenu(parent)
         
-        if self.app.messages:
-            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(NEW_MAIL_ICON))
-        else:
-            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(REDDIT_ICON))
-        
         self.connect('popup-menu', self.menu.popup)
         
         if self.app.messages:
+            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(NEW_MAIL_ICON))
+            self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
+            
             if len(self.app.messages) == 1:
                 messages_string = 'New messages: 1'
             else:
                 messages_string = 'New messages: %d' % len(self.app.messages)
         else:
+            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(REDDIT_ICON))
+            self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
             messages_string = 'New messages: 0'
         
         tooltip_string = '%s\nKarma: %d\nComment karma: %d\n%s' % (self.app.username, self.app.karma, self.app.comment_karma, messages_string)
@@ -362,7 +362,7 @@ class PopupMenu(object):
         self.ui_manager.add_ui_from_string(ui)
     
     def popup(self, widget, button, activate_time, data=None):
-        self.ui_manager.get_widget("/TrayMenu").popup(None, None, None, button, activate_time)
+        self.ui_manager.get_widget('/TrayMenu').popup(None, None, None, button, activate_time)
 
 
 def open_url(url):
