@@ -150,6 +150,7 @@ class Application(object):
             notification_body = 'from <b>%s</b>\n\n%s' % (latest_message['author'], latest_message['body'])
             self.notification = pynotify.Notification(latest_message['subject'], notification_body)
             self.notification.add_action('home', 'Inbox', self.inbox_clicked)
+            self.notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(REDDIT_ICON))
             
             if latest_message['was_comment']:
                 self.notification.add_action('context', 'Context', self.context_clicked, latest_message['context'])
