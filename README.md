@@ -14,9 +14,10 @@ Dependencies
 
     python                          2.x
     python-gtk2                     2.12
+    python-gnome2-extras (optional) ?
     python-notify                   ?  
     python-simplejson               ?
-    python-clientcookie (optional)  ?
+    python-clientcookie  (optional) ?
 
 
 How to get it?
