@@ -175,7 +175,7 @@
                 <property name="layout_style">end</property>
                 <child>
                   <object class="GtkButton" id="cancel_button">
-                    <property name="label" translatable="yes">gtk-cancel</property>
+                    <property name="label" translatable="yes">gtk-quit</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -184,6 +184,8 @@
                     <signal name="activate" handler="on_cancel_button_activate"/>
                   </object>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -200,6 +202,8 @@
                     <signal name="activate" handler="on_ok_button_activate"/>
                   </object>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
