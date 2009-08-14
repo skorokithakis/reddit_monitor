@@ -282,7 +282,7 @@ class ConfigDialog(object):
 
 def TrayIcon(app):
     app.show_notification()
-    egg = None
+    
     if egg:
         from egg_tray_icon import EggTrayIcon
         return EggTrayIcon(app)
