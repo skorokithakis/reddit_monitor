@@ -68,7 +68,6 @@ class Application(object):
     config = None
     interval = None
     username = None
-    password = None
     notify = None
     mail = None
     karma = None
@@ -263,7 +262,6 @@ class ConfigDialog(object):
                     self.widgets.get_object('message_label').set_text('Checking for new messages...')
                     self.app.messages = self.app.reddit.get_new_mail()
                     self.app.username = username
-                    self.app.password = password
                     self.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % self.app.username)
                     
                     self.app.logged_in = True
