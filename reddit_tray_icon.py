@@ -6,7 +6,6 @@ import time
 import subprocess
 import threading
 import webbrowser
-
 import ConfigParser
 
 import gtk
@@ -38,8 +37,8 @@ import reddit
 
 
 UI_DEFINITION           = os.path.abspath('reddit_tray_icon.ui')
-REDDIT_ICON             = os.path.abspath('icons/reddit.png')
-NEW_MAIL_ICON           = os.path.abspath('icons/new_mail.png')
+REDDIT_ICON             = os.path.abspath('icons/reddit_trans.png')
+NEW_MAIL_ICON           = os.path.abspath('icons/new_mail_trans.png')
 BUSY_ICON               = os.path.abspath('icons/busy.gif')
 DEFAULT_CHECK_INTERVAL  = 10 # Minutes
 REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
