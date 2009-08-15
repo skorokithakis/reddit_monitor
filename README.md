@@ -7,7 +7,7 @@ comes with a small Python script to allow you to display your reddit karma and
 number of new messages in [conky](http://conky.sourceforge.net/) or in a
 terminal.
 
-Distributed under the terms of the
+Reddit Monitor is distributed under the terms of the
 [GNU GPL version 3](http://www.gnu.org/licenses/gpl.html).
 
 
