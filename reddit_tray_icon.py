@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
 
 import sys
 import os
@@ -8,20 +7,16 @@ import subprocess
 import threading
 import webbrowser
 
-# Renamed in Python 2.6
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+import ConfigParser
 
 import gtk
-import gobject
 
 try:
     import glib
     TIMEOUT_ADD = glib.timeout_add
     IDLE_ADD = glib.idle_add
 except ImportError:
+    import gobject
     TIMEOUT_ADD = gobject.timeout_add
     IDLE_ADD = gobject.idle_add
 
@@ -87,7 +82,7 @@ class Application(object):
         if not os.path.exists(config_file):
             return None
         else:
-            parser = configparser.SafeConfigParser()
+            parser = ConfigParser.SafeConfigParser()
             parser.read([config_file])
             return parser
     
@@ -97,7 +92,7 @@ class Application(object):
         if os.path.exists(config_file):
             os.remove(config_file)
         
-        parser = configparser.SafeConfigParser()
+        parser = ConfigParser.SafeConfigParser()
         parser.add_section('Reddit')
         parser.set('Reddit', 'username', self.username)
         parser.set('Reddit', 'interval', str(self.interval))
