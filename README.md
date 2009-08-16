@@ -27,7 +27,7 @@ How to get it?
 
 The latest stable version of Reddit Monitor can always be found here:
     
-[http://davekeogh.github.com/](http://davekeogh.github.com/)
+[http://github.com/davekeogh/reddit_monitor/downloads](http://github.com/davekeogh/reddit_monitor/downloads)
 
 The development version can be checked out with this command:
     
