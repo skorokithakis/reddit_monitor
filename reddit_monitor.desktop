@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Reddit Status Applet
+GenericName=Reddit Status Applet
+Comment=A small application to notifiy you of new messages on reddit.
+TryExec=reddit_monitor
+Exec=reddit_monitor
+Icon=reddit_trans
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;
