@@ -35,7 +35,7 @@ except ImportError:
 import reddit
 
 
-UI_DEFINITION           = os.path.abspath('reddit_tray_icon.ui')
+UI_DEFINITION           = None
 REDDIT_ICON             = os.path.abspath('icons/reddit_trans.png')
 NEW_MAIL_ICON           = os.path.abspath('icons/new_mail_trans.png')
 BUSY_ICON               = os.path.abspath('icons/busy.gif')
@@ -45,6 +45,32 @@ REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
 # This will be set to True when the program is run, if xdg-open is found
 # somewhere in the path.
 XDG_OPEN                = False
+
+
+def find_ui_definition():
+    '''Tries to find the XML GtkBuilder file in all the usual places. The first
+    place to be checked is the current working directory. If it's found we
+    assume that we're debugging. If the file can't be found this function
+    returns None.'''
+    
+    paths = os.environ['XDG_DATA_DIRS'].split(':')
+    return_value = None
+    
+    # This is mostly so that debugging isn't a pain in the ass.
+    local = os.path.join(os.getcwd(), 'reddit_tray_icon.ui')
+    
+    if os.path.exists(local):
+        return_value = local
+    
+    if not return_value:
+        for path in paths:
+            full_path = os.path.join(path, 'reddit_monitor/reddit_tray_icon.ui')
+            
+            if os.path.exists(full_path):
+                return_value = full_path
+                break
+    
+    return return_value
 
 
 class Application(object):
@@ -369,11 +395,22 @@ def main(args):
         # return a less useful error string than the one we're going to display
         # below otherwise.
         print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher.'
-        sys.exit(0)
+        sys.exit(1)
+    
+    # We can't do anything if we can't find this file obviously.
+    ui = find_ui_definition()
+    print ui
+    if not ui:
+        print 'Unable to find the UI definition XML file. Reddit Monitor may be installed incorrectly.'
+        sys.exit()
+    else:
+        global UI_DEFINITION
+        UI_DEFINITION = ui
     
     # Check to see if we have xdg-open.
     for path in os.environ.get('PATH').split(':'):
         if os.path.exists(os.path.join(path, 'xdg-open')):
+            global XDG_OPEN
             XDG_OPEN = True
     
     if pynotify:
