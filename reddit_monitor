@@ -35,16 +35,54 @@ except ImportError:
 import reddit
 
 
-UI_DEFINITION           = None
-REDDIT_ICON             = os.path.abspath('icons/reddit_trans.png')
-NEW_MAIL_ICON           = os.path.abspath('icons/new_mail_trans.png')
-BUSY_ICON               = os.path.abspath('icons/busy.gif')
+REDDIT_ICON             = 'reddit_trans.png'
+NEW_MAIL_ICON           = 'new_mail_trans.png'
+BUSY_ICON               = 'busy.gif'
 DEFAULT_CHECK_INTERVAL  = 10 # Minutes
 REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
 
 # This will be set to True when the program is run, if xdg-open is found
 # somewhere in the path.
 XDG_OPEN                = False
+
+# Same thing here:
+UI_DEFINITION           = None
+
+
+def find_icon_directory():
+    '''Tries to find the folder containing our icons in all the usual places.
+    The first place to be checked is the current working directory. If it's
+    found we assume that we're debugging. If the file can't be found this
+    function returns None.'''
+    
+    paths = os.environ['XDG_DATA_DIRS'].split(':')
+    return_value = None
+    count = 0
+    
+    # This is mostly so that debugging isn't a pain in the ass.
+    local = os.path.join(os.getcwd(), 'icons')
+    
+    for icon in (REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON):
+        if os.path.exists(os.path.join(local, icon)):
+            count += 1
+    
+    if count == 3:
+        return_value = local
+    
+    if not return_value:
+        for path in paths:
+            count = 0
+            for icon in (REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON):
+                full_path = os.path.join(os.path.join(path, 'icons'), icon)
+            
+                if os.path.exists(full_path):
+                    count += 1
+            
+            if count == 3:
+                return_value = os.path.join(os.path.join(path, 'icons'))
+                break
+    
+    return return_value
 
 
 def find_ui_definition():
@@ -401,10 +439,21 @@ def main(args):
     ui = find_ui_definition()
     if not ui:
         print 'Unable to find the UI definition XML file. Reddit Monitor may be installed incorrectly.'
-        sys.exit()
+        sys.exit(1)
     else:
         global UI_DEFINITION
         UI_DEFINITION = ui
+    
+    # We need the icons too.
+    dir = find_icon_directory()
+    if not dir:
+        print 'Unable to find the icons. Reddit Monitor may be installed incorrectly.'
+        sys.exit(1)
+    else:
+        global REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON
+        REDDIT_ICON = os.path.join(dir, REDDIT_ICON)
+        NEW_MAIL_ICON = os.path.join(dir, NEW_MAIL_ICON)
+        BUSY_ICON = os.path.join(dir, BUSY_ICON)
     
     # Check to see if we have xdg-open.
     for path in os.environ.get('PATH').split(':'):
