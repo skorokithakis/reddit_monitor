@@ -11,13 +11,20 @@ Reddit Monitor is distributed under the terms of the
 [GNU GPL version 3](http://www.gnu.org/licenses/gpl.html).
 
 
+Authors
+-------
+Phillip (Philluminati) Taylor
+David Keogh
+chromakode 
+
+
 Dependencies
 ------------
 
     python                          2.x
     python-gtk2                     2.12
     python-gnome2-extras (optional) ?
-    python-notify                   ?  
+    python-notify                   ?
     python-simplejson               ?
     python-clientcookie  (optional) ?
 
