@@ -399,7 +399,6 @@ def main(args):
     
     # We can't do anything if we can't find this file obviously.
     ui = find_ui_definition()
-    print ui
     if not ui:
         print 'Unable to find the UI definition XML file. Reddit Monitor may be installed incorrectly.'
         sys.exit()
