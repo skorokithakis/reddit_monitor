@@ -21,7 +21,8 @@ FILES = {
     'icons/reddit.png'              : DIRECTORIES[1],
     'icons/reddit_border_trans.png' : DIRECTORIES[1],
     'icons/reddit_trans.png'        : DIRECTORIES[1],
-    'reddit.py'                     : 'lib/python%s.%s/dist-packages' % (sys.version_info[0], sys.version_info[1]),
+    'reddit.py'                     : 'lib/python%s.%s/dist-packages/' % (sys.version_info[0], sys.version_info[1]),
+    'egg_tray_icon.py'              : 'lib/python%s.%s/dist-packages/' % (sys.version_info[0], sys.version_info[1]),
 }
 
 
