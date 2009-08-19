@@ -37,12 +37,21 @@ The development version can be checked out with this command:
 Installation
 ------------
 
-Something similar to the following should install Reddit Monitor for you:
+Ubuntu users do the following:
 
     tar xzf reddit_monitor-0.1.0.tar.gz
     cd reddit_monitor-0.1.0
+    python setup.py build
+    sudo python setup.py install --install-layout=deb --prefix=/usr
+
+
+Everyone else, something similar to the following should work for you:
+
+    tar xzf reddit_monitor-0.1.0.tar.gz
+    cd reddit_monitor-0.1.0
+    python setup.py build
     [Become root if necessary]
-    ./install.py --prefix=/usr
+    python setup.py install --prefix=/usr
 
 
 How to report bugs?
