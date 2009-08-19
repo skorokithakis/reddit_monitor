@@ -1,13 +1,16 @@
 import gtk, egg
 
-from reddit_tray_icon import PopupMenu, NEW_MAIL_ICON, REDDIT_ICON
+
+# I really hate all of this and would love to delete it. GTK+ actually has the
+# code to do this properly now as of 2.16, but the Python bindings haven't been 
+# updated yet. T_T
 
 
 class TooltipWidget(gtk.HBox):
     
     app = None
     
-    def __init__(self, parent):
+    def __init__(self, parent, icon):
         gtk.HBox.__init__(self)
         
         self.app = parent
@@ -54,18 +57,20 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
     app = None
     icon = None
     menu = None
+    reddit_icon = None
     
-    def __init__(self, parent):
+    def __init__(self, parent, menu, reddit_icon, mail_icon):
         egg.trayicon.TrayIcon.__init__(self, 'Reddit Monitor')
         
         self.app = parent
-        self.menu = PopupMenu(parent)
+        self.menu = menu
+        self.reddit_icon = reddit_icon
         
         if self.app.messages:
-            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(NEW_MAIL_ICON, 24, 24))
+            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(mail_icon, 24, 24))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
         else:
-            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(REDDIT_ICON, 24, 24))
+            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(reddit_icon, 24, 24))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
         
         event_box = gtk.EventBox()
@@ -79,7 +84,7 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         self.show_all()
     
     def show_tooltip(self, widget, x, y, keyboard_mode, tooltip):
-        tooltip.set_custom(TooltipWidget(self.app))
+        tooltip.set_custom(TooltipWidget(self.app, self.reddit_icon))
         return True
     
     def button_pressed(self, widget, event):

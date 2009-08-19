@@ -340,7 +340,8 @@ def TrayIcon(app):
     
     if egg:
         from egg_tray_icon import EggTrayIcon
-        return EggTrayIcon(app)
+        global REDDIT_ICON, NEW_MAIL_ICON
+        return EggTrayIcon(app, PopupMenu(app), REDDIT_ICON, NEW_MAIL_ICON)
     else:
         return GtkTrayIcon(app)
 
