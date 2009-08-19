@@ -1,0 +1,2 @@
+include reddit_monitor.desktop reddit_tray_icon.ui reddit.png
+recursive-include icons *
