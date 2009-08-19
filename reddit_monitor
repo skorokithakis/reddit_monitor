@@ -73,13 +73,13 @@ def find_icon_directory():
         for path in paths:
             count = 0
             for icon in (REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON):
-                full_path = os.path.join(os.path.join(path, 'icons'), icon)
-            
+                full_path = os.path.join(os.path.join(path, 'reddit_monitor/icons'), icon)
+                
                 if os.path.exists(full_path):
                     count += 1
             
             if count == 3:
-                return_value = os.path.join(os.path.join(path, 'icons'))
+                return_value = os.path.join(os.path.join(path, 'reddit_monitor/icons'))
                 break
     
     return return_value
@@ -446,15 +446,15 @@ def main(args):
         UI_DEFINITION = ui
     
     # We need the icons too.
-    dir = find_icon_directory()
-    if not dir:
+    icons = find_icon_directory()
+    if not icons:
         print 'Unable to find the icons. Reddit Monitor may be installed incorrectly.'
         sys.exit(1)
     else:
         global REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON
-        REDDIT_ICON = os.path.join(dir, REDDIT_ICON)
-        NEW_MAIL_ICON = os.path.join(dir, NEW_MAIL_ICON)
-        BUSY_ICON = os.path.join(dir, BUSY_ICON)
+        REDDIT_ICON = os.path.join(icons, REDDIT_ICON)
+        NEW_MAIL_ICON = os.path.join(icons, NEW_MAIL_ICON)
+        BUSY_ICON = os.path.join(icons, BUSY_ICON)
     
     # Check to see if we have xdg-open.
     for path in os.environ.get('PATH').split(':'):
