@@ -15,7 +15,7 @@ class TooltipWidget(gtk.HBox):
         
         self.app = parent
         
-        icon = gtk.image_new_from_file(REDDIT_ICON)
+        icon = gtk.image_new_from_file(icon)
         karma_label = gtk.Label()
         comment_karma_label = gtk.Label()
         messages_label = gtk.Label()
