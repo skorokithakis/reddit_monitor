@@ -4,7 +4,6 @@ import sys
 import os
 import subprocess
 import threading
-import webbrowser
 import ConfigParser
 
 import gtk
@@ -109,6 +108,17 @@ def find_ui_definition():
                 break
     
     return return_value
+
+
+def open_url(url):
+    '''Tries to use the xdg-open utility to open a URL in your prefered web
+    browser. If it's not installed we fallback on using the Python webbrowser
+    module which may choose the wrong browser in some cases.'''
+    
+    if XDG_OPEN:
+        subprocess.call(['xdg-open', url])
+    else:
+        webbrowser.open(url)
 
 
 class Application(object):
@@ -421,13 +431,6 @@ class PopupMenu(object):
         self.ui_manager.get_widget('/TrayMenu').popup(None, None, None, button, activate_time)
 
 
-def open_url(url):
-    if XDG_OPEN:
-        subprocess.call(['xdg-open', url])
-    else:
-        webbrowser.open(url)
-
-
 def main(args):
     if gtk.check_version(2, 12, 0):
         # This will return None if you have GTK+ version 2.12 or higher. It will
@@ -461,6 +464,9 @@ def main(args):
         if os.path.exists(os.path.join(path, 'xdg-open')):
             global XDG_OPEN
             XDG_OPEN = True
+    
+    if not XDG_OPEN:
+        import webbrowser
     
     if pynotify:
         pynotify.init('Reddit Monitor')
