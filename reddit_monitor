@@ -191,7 +191,7 @@ class Application(object):
     def check_keyring(self):
         try:
             cred = keyring.find_items_sync(keyring.ITEM_GENERIC_SECRET,
-                                           {'app_ident' : 'reddit_monitor'})
+                                           {'app_ident' : 'Reddit Monitor'})
             
             if not cred:
                 return None, None
@@ -207,9 +207,9 @@ class Application(object):
     
     def save_keyring(self, username, password):
         keyring.item_create_sync(keyring.get_default_keyring_sync(),
-                                 keyring.ITEM_GENERIC_SECRET, 'reddit_monitor',
+                                 keyring.ITEM_GENERIC_SECRET, 'Reddit Monitor',
                                  {
-                                    'app_ident' : 'reddit_monitor',
+                                    'app_ident' : 'Reddit Monitor',
                                     'username'  : username,
                                  }, 
                                  password, True)
