@@ -13,11 +13,15 @@ Reddit Monitor is distributed under the terms of the
 
 Authors
 -------
-Phillip (Philluminati) Taylor
+- Phillip (Philluminati) Taylor
+- David Keogh
+- chromakode
 
-David Keogh
 
-chromakode
+Build Dependencies
+------------------
+python-dev                          2.x
+python-gtk2-dev                     2.12
 
 
 Dependencies
@@ -25,10 +29,11 @@ Dependencies
 
     python                          2.x
     python-gtk2                     2.12
-    python-gnome2-extras (optional) ?
-    python-notify                   ?
     python-simplejson               ?
     python-clientcookie  (optional) ?
+    python-gnome2-extras (optional) ?
+    python-notify        (optional) ?
+    gnome-keyring        (optional) ?
 
 
 How to get it?
