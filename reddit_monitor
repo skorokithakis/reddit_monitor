@@ -320,8 +320,10 @@ class ConfigDialog(object):
             self.widgets.get_object('auto_checkbutton').set_active(self.app.config.getboolean('Reddit_Monitor', 'login_automatically'))
         else:
             # Default values:
-            self.widgets.get_object('update_spinbutton').set_value(10)
-            self.widgets.get_object('notify_checkbutton').set_active(True)
+            self.widgets.get_object('update_spinbutton').set_value(DEFAULT_CHECK_INTERVAL)
+            
+            if pynotify:
+                self.widgets.get_object('notify_checkbutton').set_active(True)
         
         # TODO: Log in automatically depends on remember username & password.
         #       Set it insensitive when remember username & password is false.
