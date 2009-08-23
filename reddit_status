@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# TODO: Add support for gnome-keyring here too so the user doen't have to save
+#       their password in plaintext in a .conkrc or whatever.
+
 import sys, re
 import reddit
 
