@@ -14,10 +14,11 @@ Reddit Monitor is distributed under the terms of the
 Authors
 -------
 
+Phillip (Philluminati) Taylor
 
-- Phillip (Philluminati) Taylor
-- David Keogh
-- chromakode
+David Keogh
+
+chromakode
 
 
 Build Dependencies
