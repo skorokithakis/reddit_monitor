@@ -156,8 +156,6 @@ class Application(object):
     }
     
     def __init__(self):
-        
-        
         self.config = self.load_config()
         self.reddit = reddit.Reddit()
         self.config_dialog = ConfigDialog(self, *self.check_keyring())
