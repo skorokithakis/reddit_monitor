@@ -13,6 +13,7 @@ Reddit Monitor is distributed under the terms of the
 
 Authors
 -------
+
 - Phillip (Philluminati) Taylor
 - David Keogh
 - chromakode
@@ -20,8 +21,9 @@ Authors
 
 Build Dependencies
 ------------------
-python-dev                          2.x
-python-gtk2-dev                     2.12
+
+    python-dev                          2.x
+    python-gtk2-dev                     2.12
 
 
 Dependencies
