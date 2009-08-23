@@ -18,7 +18,7 @@ Phillip (Philluminati) Taylor
 
 David Keogh
 
-chromakode
+Chromakode
 
 
 Build Dependencies
@@ -34,10 +34,10 @@ Dependencies
     python                          2.x
     python-gtk2                     2.12
     python-simplejson               ?
-    python-clientcookie  (optional) ?
     python-gnome2-extras (optional) ?
     python-notify        (optional) ?
     gnome-keyring        (optional) ?
+    xdg-utils            (optional) ?
 
 
 How to get it?
