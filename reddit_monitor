@@ -323,6 +323,9 @@ class ConfigDialog(object):
             self.widgets.get_object('update_spinbutton').set_value(10)
             self.widgets.get_object('notify_checkbutton').set_active(True)
         
+        # TODO: Log in automatically depends on remember username & password.
+        #       Set it insensitive when remember username & password is false.
+        
         self.widgets.get_object('username_entry').set_activates_default(True)
         self.widgets.get_object('password_entry').set_activates_default(True)
         self.widgets.get_object('update_spinbutton').set_activates_default(True)
@@ -395,7 +398,8 @@ class ConfigDialog(object):
                     self.app.username = username
                     self.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % self.app.username)
                     
-                    self.app.save_keyring(username, password)
+                    if self.app.config.getboolean('Reddit_Monitor', 'remember_username_password'):
+                        self.app.save_keyring(username, password)
                     self.app.save_config()
                     
                     self.app.logged_in = True
