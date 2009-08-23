@@ -329,6 +329,10 @@ class ConfigDialog(object):
         
         self.widgets.get_object('window').set_default(self.widgets.get_object('ok_button'))
         self.widgets.get_object('window').show()
+        
+        if username and password and self.app.config.getboolean('Reddit_Monitor', 'login_automatically'):
+            # Log in automatically
+            self.widgets.get_object('ok_button').clicked()
     
     def set_sensitive(self, bool):
         self.widgets.get_object('username_entry').set_sensitive(bool)
