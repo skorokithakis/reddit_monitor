@@ -24,20 +24,25 @@ Authors
 Build Dependencies
 ------------------
 
-    python-dev                      2.x
-    python-gtk2-dev                 2.12
+    python-dev                  2.x
+    python-gtk2-dev             2.12
 
 
 Dependencies
 ------------
 
-    python                          2.x
-    python-gtk2                     2.12
-    python-simplejson               ?
-    python-gnome2-extras (optional) ?
-    python-notify        (optional) ?
-    gnome-keyring        (optional) ?
-    xdg-utils            (optional) ?
+    python                      2.x
+    python-gtk2                 2.12        
+    python-simplejson           ?           Included as part of Python 2.6 +
+    
+
+Optional Dependencies
+---------------------
+
+    python-gnome2-extras        ?           More featureful tray icon
+    python-notify               ?           Display pop-up notifications
+    gnome-keyring               ?           Save username & password
+    xdg-utils                   ?           Open the prefered web browser
 
 
 How to get it?
