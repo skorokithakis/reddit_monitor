@@ -89,7 +89,7 @@ class Reddit(object):
         
         except Exception, e:
             print 'Error is related to reading a profile page: %s' % e.message
-            raise e
+            raise
         
         results = self.karma_re.search(page_contents)
         karma = int(results.group(1))
@@ -108,7 +108,7 @@ class Reddit(object):
         
         except Exception, e:
             print 'Error is related to reading inbox page: %s' % e.message
-            raise e
+            raise
         
         try:
             inbox = simplejson.loads(json_data)
