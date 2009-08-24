@@ -119,7 +119,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
-                            <property name="tooltip_text" translatable="yes">This feature requires that the Remember username &amp; password is enabled</property>
+                            <property name="tooltip_text" translatable="yes">Requires that Remember username &amp; password is enabled</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
@@ -266,7 +266,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="ok_button">
-                    <property name="label" translatable="yes">gtk-ok</property>
+                    <property name="label" translatable="yes">gtk-connect</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="can_default">True</property>
