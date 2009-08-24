@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <interface>
-  <!-- interface-requires gtk+ 2.8 -->
+  <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window">
     <property name="title" translatable="yes">Reddit Monitor</property>
@@ -107,6 +107,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_remember_checkbutton_toggled"/>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -118,6 +119,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
+                            <property name="tooltip_text" translatable="yes">This feature requires that the Remember username &amp; password is enabled</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
                           </object>
@@ -205,7 +207,7 @@
                 <child type="label">
                   <object class="GtkLabel" id="label5">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Options&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Preferences&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
