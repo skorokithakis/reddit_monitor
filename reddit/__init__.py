@@ -2,13 +2,7 @@
 #Written by Phillip (Philluminati) Taylor. Mail to: Phillip.Taylor@bcs.org.uk
 #Licensed under the GNU General Public License version 3. Copies of the license can be found online.
 
-import urllib
-import urllib2
-import os.path
-import getopt
-import getpass
-import sys
-import re
+import cookielib, re, urllib, urllib2
 import simplejson
 
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
@@ -32,46 +26,21 @@ class RedditNotLoggedInException:
 class RedditBadJSONException:
     pass
 
-class Reddit:
-
+class Reddit(object):
+    
+    # Unfortunately there's no way to get 
+    karma_re = re.compile('<b>(\d+)</b></li><li class="comment-karma">comment karma: &#32;<b>(\d+)</b>')
+    
+    user = None
+    
     def __init__(self):
 
-        #regex to extract karma + comment karma.
-        self.karma_re = re.compile('<b>(\d+)</b></li><li class="comment-karma">comment karma: &#32;<b>(\d+)</b>')
         #Because the login is an ajax post before we need cookies.
         #That's what made this code annoying to write.
-        #This code should work against either cookielib or ClientCookie depending on
-        #which ever one you have.
-        try:
-            import cookielib
 
-            #Were taking references to functions / objects here
-            #so later on we don't need to worry about which actual
-            #import we used.
-            self.Request = urllib2.Request
-            self.urlopen = urllib2.urlopen
-
-            cookie_jar = cookielib.LWPCookieJar()
-            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
-            urllib2.install_opener(opener)
-
-        except ImportError:
-            try:
-                import ClientCookie
-
-                self.Request = ClientCookie.Request
-                self.urlopen = ClientCookie.urlopen
-
-                cookie_jar = ClientCookie.LWPCookieJar()
-                opener = ClientCookie.build_opener(ClientCookie.HTTPCookieProcessor(cookie_jar))
-
-            except ImportError:
-                raise ImportError("""This code is dependent on either
-                         \'cookielib\' or \'ClientCookie\'
-                         #and you have neither.
-                        """)
-
-        self.user = None
+        cookie_jar = cookielib.LWPCookieJar()
+        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
+        urllib2.install_opener(opener)
 
     def login(self, user, passwd):
 
@@ -85,15 +54,15 @@ class Reddit:
         })
 
         try:
-            req = self.Request(REDDIT_LOGIN_URL, params, REDDIT_USER_AGENT)
-            retval = self.urlopen(req).read()
+            req = urllib2.Request(REDDIT_LOGIN_URL, params, REDDIT_USER_AGENT)
+            retval = urllib2.urlopen(req).read()
         except Exception, e:
             print "F*CK: %s", e.message
             return False
         
         if retval.find('invalid password') != -1:
             self.logged_in = False
-            raise RedditInvalidUsernamePasswordException()
+            raise RedditInvalidUsernamePasswordException
         else:
             self.logged_in = True
 
@@ -112,8 +81,8 @@ class Reddit:
         profile_page_to_fetch = REDDIT_PROFILE_PAGE % user
 
         try:
-            req = self.Request(profile_page_to_fetch, None, REDDIT_USER_AGENT)
-            page_contents = self.urlopen(req).read()            
+            req = urllib2.Request(profile_page_to_fetch, None, REDDIT_USER_AGENT)
+            page_contents = urllib2.urlopen(req).read()            
 
         except Exception, e:
             print 'Error is related to reading a profile page: %s', e.message
@@ -131,8 +100,8 @@ class Reddit:
         profile_page_to_fetch = REDDIT_INBOX_PAGE
 
         try:
-            req = self.Request(profile_page_to_fetch, None, REDDIT_USER_AGENT)
-            json_data = self.urlopen(req).read()
+            req = urllib2.Request(profile_page_to_fetch, None, REDDIT_USER_AGENT)
+            json_data = urllib2.urlopen(req).read()
 
         except Exception, e:
             print 'Error is related to reading inbox page: %s', e.message
