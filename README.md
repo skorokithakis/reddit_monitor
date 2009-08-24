@@ -39,10 +39,10 @@ Dependencies
 Optional Dependencies
 ---------------------
 
-    python-gnome2-extras        ?           More featureful tray icon
-    python-notify               ?           Display pop-up notifications
-    gnome-keyring               ?           Save username & password
-    xdg-utils                   ?           Open the prefered web browser
+    python-gnome2-extras        2.19.1      More featureful tray icon
+    python-notify               0.1.x       Display pop-up notifications
+    gnome-keyring               2.x         Save username & password
+    xdg-utils                   1.0.x       Open the prefered web browser
 
 
 How to get it?
