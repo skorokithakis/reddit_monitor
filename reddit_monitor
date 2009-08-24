@@ -344,6 +344,8 @@ class ConfigDialog(object):
         self.widgets.get_object('sound_checkbutton').set_sensitive(bool)
         self.widgets.get_object('update_spinbutton').set_sensitive(bool)
         self.widgets.get_object('ok_button').set_sensitive(bool)
+        self.widgets.get_object('label3').set_sensitive(bool)
+        self.widgets.get_object('label4').set_sensitive(bool)
     
     def remember_toggled(self, widget):
         if widget.get_active():
