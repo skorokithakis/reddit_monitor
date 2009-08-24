@@ -49,8 +49,8 @@ if __name__ == '__main__':
     
     try:
         session.login(sys.argv[1], sys.argv[2])
-    except reddit.RedditInvalidUsernamePasswordException:
-        print 'Log in failed. Please ensure that your username and password are correct.'
+    except reddit.RedditInvalidUsernamePasswordException, e:
+        print e
         sys.exit(1)
     
     karma, comment_karma = session.get_karma()
