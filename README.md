@@ -68,12 +68,12 @@ Ubuntu users can do the following:
     sudo python setup.py install --install-layout=deb --prefix=/usr
 
 
+
 Everyone else, something similar to the following should work for you:
 
     tar xzf reddit_monitor-0.1.0.tar.gz
     cd reddit_monitor-0.1.0
     python setup.py build
-Become root if necessary
     python setup.py install
 
 
