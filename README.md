@@ -33,7 +33,7 @@ Dependencies
 
     python                      2.x
     python-gtk2                 2.12        
-    python-simplejson           ?           Included as part of Python 2.6 +
+    python-simplejson           ?           Included as part of Python 2.6
     
 
 Optional Dependencies
@@ -60,7 +60,7 @@ The development version can be checked out with this command:
 Installation
 ------------
 
-Ubuntu users do the following:
+Ubuntu users can do the following:
 
     tar xzf reddit_monitor-0.1.0.tar.gz
     cd reddit_monitor-0.1.0
@@ -73,8 +73,8 @@ Everyone else, something similar to the following should work for you:
     tar xzf reddit_monitor-0.1.0.tar.gz
     cd reddit_monitor-0.1.0
     python setup.py build
-    [Become root if necessary]
-    python setup.py install --prefix=/usr
+Become root if necessary
+    python setup.py install
 
 
 How to report bugs?
