@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(
-    version = '0.1.0',
+    version = '0.2.0',
     name = 'reddit_monitor',
     
     description = 'Notifies you when you have new messages on reddit.',
@@ -30,6 +30,17 @@ setup(
         ('share/applications', ['reddit_monitor.desktop']),
         ('share/reddit_monitor', ['reddit_tray_icon.ui']),
         ('share/pixmaps', ['reddit.png']),
-        ('share/reddit_monitor/icons', ['icons/busy.gif', 'icons/new_mail.png', 'icons/new_mail_trans.png', 'icons/reddit.png', 'icons/reddit_border_trans.png', 'icons/reddit_trans.png']),
+        
+        ('share/reddit_monitor/icons', ['icons/busy.gif', 'icons/new_mail.png',
+                                        'icons/new_mail_trans.png',
+                                        'icons/reddit.png',
+                                        'icons/reddit_border_trans.png',
+                                        'icons/reddit_trans.png']),
+        
+        ('share/reddit_monitor/sounds', ['sounds/bell.wav', 
+                                         'sounds/message-new-email.wav',
+                                         'sounds/message-new-instant.wav',
+                                         'sounds/phone-incomming-call.wav',
+                                         'sounds/README']),
     ],
 )
