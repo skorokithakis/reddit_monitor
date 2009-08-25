@@ -37,6 +37,13 @@ try:
 except ImportError:
     keyring = None
 
+# Provides an easy API to play a sound; provided by python-gnome2.
+try:
+    import gnome
+    import socket
+except ImportError:
+    gnome = None
+
 import reddit
 
 
@@ -45,6 +52,7 @@ NEW_MAIL_ICON           = 'new_mail_trans.png'
 BUSY_ICON               = 'busy.gif'
 DEFAULT_CHECK_INTERVAL  = 10 # Minutes
 REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
+NEW_MESSAGE_SOUND       = 'message-new-instant.wav'
 
 # This will be set to True when the program is run, if xdg-open is found
 # somewhere in the path.
@@ -52,6 +60,34 @@ XDG_OPEN                = False
 
 # Same thing here:
 UI_DEFINITION           = None
+
+
+# TODO: Refactor this. One function can do the job of all of these:
+
+def find_sounds_directory():
+    '''Tries to find the folder containing our icons in all the usual places.
+    The first place to be checked is the current working directory. If it's
+    found we assume that we're debugging. If the file can't be found this
+    function returns None.'''
+    
+    paths = os.environ['XDG_DATA_DIRS'].split(':')
+    return_value = None
+    
+    # This is mostly so that debugging isn't a pain in the ass.
+    local = os.path.join(os.getcwd(), 'sounds')
+    
+    if os.path.exists(os.path.join(local, NEW_MESSAGE_SOUND)):
+        return local
+    
+    else:
+        for path in paths:
+            full_path = os.path.exists(path, NEW_MESSAGE_SOUND)
+            
+            if os.path.exists(path, NEW_MESSAGE_SOUND):
+                return_value = full_path
+                break
+    
+    return return_value
 
 
 def find_icon_directory():
@@ -72,9 +108,9 @@ def find_icon_directory():
             count += 1
     
     if count == 3:
-        return_value = local
+        return local
     
-    if not return_value:
+    else:
         for path in paths:
             count = 0
             for icon in (REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON):
@@ -103,9 +139,9 @@ def find_ui_definition():
     local = os.path.join(os.getcwd(), 'reddit_tray_icon.ui')
     
     if os.path.exists(local):
-        return_value = local
+        return local
     
-    if not return_value:
+    else:
         for path in paths:
             full_path = os.path.join(path, 'reddit_monitor/reddit_tray_icon.ui')
             
@@ -229,6 +265,7 @@ class Application(object):
                 if self.messages:
                     self.tray_icon.set_icon(NEW_MAIL_ICON)
                     self.show_notification()
+                    self.play_sound()
                 else:
                     self.tray_icon.set_icon(REDDIT_ICON)
                 
@@ -239,6 +276,14 @@ class Application(object):
         
         return True
     
+    def play_sound(self, file=None):
+        if self.options['sound']:
+            if file:
+                gnome.sound_play(file)
+            else:
+                if NEW_MESSAGE_SOUND:
+                    gnome.sound_play(NEW_MESSAGE_SOUND)
+    
     def clear_messages(self, widget=None):
         self.messages = []
         self.tray_icon.set_icon(REDDIT_ICON)
@@ -247,7 +292,7 @@ class Application(object):
         open_url(REDDIT_INBOX_USER_URL)
     
     def show_notification(self):
-        if self.messages and self.options['notify']:
+        if self.options['notify']:
             latest_message = self.messages[len(self.messages) - 1]
             
             notification_body = 'from <b>%s</b>\n\n%s' % (latest_message['author'], latest_message['body'])
@@ -422,7 +467,9 @@ class ConfigDialog(object):
 
 
 def TrayIcon(app):
-    app.show_notification()
+    if app.messages:
+        app.play_sound()
+        app.show_notification()
     
     if egg:
         from reddit.egg_tray_icon import EggTrayIcon
@@ -543,6 +590,18 @@ def main(args):
     
     if not XDG_OPEN:
         import webbrowser
+    
+    # See if everything is in order to play some sounds:
+    if gnome:
+        gnome.sound_init(socket.gethostname())
+        
+        sounds = find_sounds_directory()
+        global NEW_MESSAGE_SOUND
+        
+        if sounds:
+            NEW_MESSAGE_SOUND = os.path.join(sounds, NEW_MESSAGE_SOUND)
+        else:
+            NEW_MESSAGE_SOUND = None
     
     if pynotify:
         pynotify.init('Reddit Monitor')
