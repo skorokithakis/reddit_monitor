@@ -3,17 +3,17 @@
 # TODO: Add support for gnome-keyring here too so the user doen't have to save
 #       their password in plaintext in a .conkrc or whatever.
 
-import sys, re
+import sys, re, optparse
 import reddit
 
-USAGE = '''Usage: reddit_status username password [format string]
+USAGE = '''%prog [options] username password [format]
 
 The format string needs to contain at least one of the following tokens:
-    
-    %k    karma score
-    %c    comment karma
-    %m    new messages
-    %u    user name (optional)'''
+
+  %c             comment karma
+  %k             karma score
+  %m             new messages
+  %u             user name      (optional)'''
 
 FORMAT = 'You have %m new messages on reddit.'
 
@@ -21,7 +21,7 @@ class InvalidFormatStringException(Exception):
     pass
 
 
-def parse_format_string(format_string):
+def validate_format_string(format_string):
     tokens = re.search('(%[kcm])', format_string)
     
     if tokens:
@@ -31,26 +31,66 @@ def parse_format_string(format_string):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3 or len(sys.argv) > 4:
-        print USAGE
-        sys.exit(2)
+    parser = optparse.OptionParser()
+    parser.add_option('-k', '--keyring', action='store_true', dest='keyring', default=False,
+                      help='get the username & password from gnome-keyring (username & password are optional if this is true)')
+    parser.usage = USAGE
     
-    elif len(sys.argv) == 4:
+    (options, args) = parser.parse_args()
+    
+    if options.keyring:
         try:
-            format = parse_format_string(sys.argv[3])
-        except InvalidFormatStringException:
-            print USAGE
-            sys.exit(2)
+            import gnomekeyring as keyring
+        except (AttributeError, ImportError, keyring.NoMatchError):
+            parser.print_usage()
+            print 'reddit_status: error: install gnome-keyring or supply the username & password'
+            sys.exit(1)
+        
+        try:
+            creds = keyring.find_items_sync(keyring.ITEM_GENERIC_SECRET,
+                                            {'app_ident' : 'Reddit Monitor'})
+            
+            # TODO: Provide a drop-down menu of all the available usernames.
+            #       We're selecting the newest one out of laziness.
+            username = creds[0].attributes['username']
+            password = creds[0].secret
+        except keyring.NoMatchError:
+            parser.print_usage()
+            print 'reddit_status: error: no password found in gnome-keyring'
+            sys.exit(1)
+        
+        try:
+            format = args[0]
+        except IndexError:
+            format = FORMAT
     
     else:
-        format = FORMAT
+        try:
+            username = args[0]
+            password = args[1]
+        except IndexError:
+            parser.print_usage()
+            sys.exit(2)
+        
+        try:
+            format = args[2]
+        except IndexError:
+            format = FORMAT
+    
+    try:
+        format = validate_format_string(format)
+    except InvalidFormatStringException:
+        parser.print_usage()
+        print 'reddit_status: error: format string contains errors'
+        sys.exit(2)
     
     session = reddit.Reddit()
     
     try:
-        session.login(sys.argv[1], sys.argv[2])
-    except reddit.RedditInvalidUsernamePasswordException, e:
-        print e
+        session.login(username, password)
+    except reddit.RedditInvalidUsernamePasswordException:
+        parser.print_usage()
+        print 'reddit_status: error: the username or password is incorrect'
         sys.exit(1)
     
     karma, comment_karma = session.get_karma()
