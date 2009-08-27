@@ -224,17 +224,13 @@ class Application(object):
     
     def check_keyring(self):
         try:
-            cred = keyring.find_items_sync(keyring.ITEM_GENERIC_SECRET,
+            creds = keyring.find_items_sync(keyring.ITEM_GENERIC_SECRET,
                                            {'app_ident' : 'Reddit Monitor'})
             
-            if not cred:
-                return None, None
-            else:
-                username = cred[0].attributes['username']
-                password = cred[0].secret
-                
-                return username, password
-        except (AttributeError, keyring.NoMatchError):
+            # TODO: Provide a drop-down menu of all the available usernames.
+            #       We're selecting the newest one out of laziness.
+            return creds[0].attributes['username'], creds[0].secret
+        except keyring.NoMatchError:
             return None, None
     
     def save_keyring(self, username, password):
