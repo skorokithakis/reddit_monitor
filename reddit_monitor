@@ -81,9 +81,9 @@ def find_sounds_directory():
     
     else:
         for path in paths:
-            full_path = os.path.exists(os.path.join(path, NEW_MESSAGE_SOUND))
+            full_path = os.path.join(path, 'reddit_monitor/sounds')
             
-            if os.path.exists(path, NEW_MESSAGE_SOUND):
+            if os.path.exists(os.path.join(full_path, NEW_MESSAGE_SOUND)):
                 return_value = full_path
                 break
     
@@ -379,6 +379,9 @@ class ConfigDialog(object):
             # Default values:
             self.widgets.get_object('update_spinbutton').set_value(DEFAULT_CHECK_INTERVAL)
             
+            if keyring:
+                self.widgets.get_object('remember_checkbutton').set_active(True)
+            
             if pynotify:
                 self.widgets.get_object('notify_checkbutton').set_active(True)
         
@@ -406,7 +409,7 @@ class ConfigDialog(object):
         }
         self.widgets.connect_signals(signals)
         
-        if username and password and self.app.config.getboolean('Reddit_Monitor', 'login_automatically'):
+        if username and password and self.app.options['login_automatically']:
             # Log in automatically
             self.widgets.get_object('ok_button').clicked()
     
@@ -490,7 +493,7 @@ class ConfigDialog(object):
                     self.app.username = username
                     self.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % self.app.username)
                     
-                    if self.app.config.getboolean('Reddit_Monitor', 'remember_username_password'):
+                    if self.app.options['remember_username_password']:
                         self.app.save_keyring(username, password)
                     self.app.save_config()
                     
