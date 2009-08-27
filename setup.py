@@ -40,7 +40,7 @@ setup(
         ('share/reddit_monitor/sounds', ['sounds/bell.wav', 
                                          'sounds/message-new-email.wav',
                                          'sounds/message-new-instant.wav',
-                                         'sounds/phone-incomming-call.wav',
+                                         'sounds/phone-incoming-call.wav',
                                          'sounds/README']),
     ],
 )
