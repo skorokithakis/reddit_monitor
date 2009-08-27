@@ -45,6 +45,11 @@ Optional Dependencies
     xdg-utils                   1.0.x       Open the prefered web browser
 
 
+I'm unsure about the exact minimum versions of most of the dependencies. If you
+are unable to run Reddit Monitor for whatever reason, let me know so that I can
+look in to it.
+
+
 How to get it?
 --------------
 
