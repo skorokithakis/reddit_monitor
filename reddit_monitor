@@ -81,7 +81,7 @@ def find_sounds_directory():
     
     else:
         for path in paths:
-            full_path = os.path.exists(path, NEW_MESSAGE_SOUND)
+            full_path = os.path.exists(os.path.join(path, NEW_MESSAGE_SOUND))
             
             if os.path.exists(path, NEW_MESSAGE_SOUND):
                 return_value = full_path
