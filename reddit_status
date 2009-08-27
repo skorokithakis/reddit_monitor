@@ -41,7 +41,9 @@ if __name__ == '__main__':
     if options.keyring:
         try:
             import gnomekeyring as keyring
-        except (AttributeError, ImportError, keyring.NoMatchError):
+            import glib
+            glib.set_application_name('reddit_status')
+        except ImportError:
             parser.print_usage()
             print 'reddit_status: error: install gnome-keyring or supply the username & password'
             sys.exit(1)
