@@ -50,8 +50,8 @@ if __name__ == '__main__':
             creds = keyring.find_items_sync(keyring.ITEM_GENERIC_SECRET,
                                             {'app_ident' : 'Reddit Monitor'})
             
-            # TODO: Provide a drop-down menu of all the available usernames.
-            #       We're selecting the newest one out of laziness.
+            # TODO: We're selecting the newest one out of laziness. Is there a
+            #       better solution? Yes.
             username = creds[0].attributes['username']
             password = creds[0].secret
         except keyring.NoMatchError:
