@@ -18,12 +18,6 @@ REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
 REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
 REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/about.json'
 
-#Notes:
-#1. Could have better exception handling (i.e. some for 404, wrong password, other basic things)
-#2. Could possibly save cookie and reuse it later (no password question on load).
-#3. Known bug. If you write a comment on reddit about the regex's this page uses you inadvertantly
-#   trick it. (e.g. put /static/mailgrey/png) in a comment and it will wrongly think you have no new
-#   mail.
 
 class RedditInvalidUsernamePasswordException(Exception):
     pass
@@ -34,13 +28,12 @@ class RedditNotLoggedInException(Exception):
 class RedditBadJSONException(Exception):
     pass
 
+
 class Reddit(object):
     
     user = None
     
     def __init__(self):
-        #Because the login is an ajax post before we need cookies.
-        #That's what made this code annoying to write.
         
         cookie_jar = cookielib.LWPCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
