@@ -440,7 +440,7 @@ class ConfigDialog(object):
                     self.app.save_config()
                     
                     self.app.logged_in = True
-                except reddit.RedditInvalidUsernamePasswordException, e:
+                except redditmonitor.RedditInvalidUsernamePasswordException, e:
                     self.widgets.get_object('message_label').set_text(e.args[0])
                     self.set_sensitive(True)
                     self.widgets.get_object('username_entry').grab_focus()
