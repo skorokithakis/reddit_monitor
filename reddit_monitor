@@ -53,103 +53,64 @@ BUSY_ICON               = 'busy.gif'
 DEFAULT_CHECK_INTERVAL  = 10 # Minutes
 REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
 NEW_MESSAGE_SOUND       = 'message-new-instant.wav'
+UI_DEFINITION           = 'reddit_tray_icon.ui'
 
 # This will be set to True when the program is run, if xdg-open is found
 # somewhere in the path.
 XDG_OPEN                = False
 
-# Same thing here:
-UI_DEFINITION           = None
 
-
-# TODO: Refactor this. One function can do the job of all of these:
-
-def find_sounds_directory():
-    '''Tries to find the folder containing our icons in all the usual places.
-    The first place to be checked is the current working directory. If it's
-    found we assume that we're debugging. If the file can't be found this
-    function returns None.'''
+def find_resources():
+    '''Checks to see if all the required files can be located. Returns true if
+    all the files can be located; returns false otherwise.'''
+    
+    global NEW_MESSAGE_SOUND, REDDIT_ICON, NEW_MAIL_ICON,BUSY_ICON,UI_DEFINITION
+    
+    resources = [
+        'sounds/%s' % NEW_MESSAGE_SOUND,
+        'icons/%s' % REDDIT_ICON,
+        'icons/%s' % NEW_MAIL_ICON,
+        'icons/%s' % BUSY_ICON,
+        UI_DEFINITION
+    ]
+    
+    if os.path.isfile(os.path.join(os.getcwd(), '.debug')):
+        NEW_MESSAGE_SOUND = os.path.join(os.getcwd(), resources[0])
+        REDDIT_ICON = os.path.join(os.getcwd(), resources[1])
+        NEW_MAIL_ICON = os.path.join(os.getcwd(), resources[2])
+        BUSY_ICON = os.path.join(os.getcwd(), resources[3])
+        UI_DEFINITION = os.path.join(os.getcwd(), resources[4])
+        return True
     
     paths = os.environ['XDG_DATA_DIRS'].split(':')
-    return_value = None
     
-    # This is mostly so that debugging isn't a pain in the ass.
-    local = os.path.join(os.getcwd(), 'sounds')
+    found = []
     
-    if os.path.exists(os.path.join(local, NEW_MESSAGE_SOUND)):
-        return local
-    
-    else:
-        for path in paths:
-            full_path = os.path.join(path, 'reddit_monitor/sounds')
+    for path in paths:
+        rc_dir = os.path.join(path, 'reddit_monitor')
+        
+        if os.path.isdir(rc_dir):
+            for file in resources:
+                if os.path.isfile(os.path.join(rc_dir, file)):
+                    found.append(True)
+                else:
+                    found = []
+                    break
             
-            if os.path.exists(os.path.join(full_path, NEW_MESSAGE_SOUND)):
-                return_value = full_path
+            if len(found) == len(resources):
                 break
+            else:
+                found = []
     
-    return return_value
-
-
-def find_icon_directory():
-    '''Tries to find the folder containing our icons in all the usual places.
-    The first place to be checked is the current working directory. If it's
-    found we assume that we're debugging. If the file can't be found this
-    function returns None.'''
-    
-    paths = os.environ['XDG_DATA_DIRS'].split(':')
-    return_value = None
-    count = 0
-    
-    # This is mostly so that debugging isn't a pain in the ass.
-    local = os.path.join(os.getcwd(), 'icons')
-    
-    for icon in (REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON):
-        if os.path.exists(os.path.join(local, icon)):
-            count += 1
-    
-    if count == 3:
-        return local
-    
+    if len(found) != len(resources):
+        return False
     else:
-        for path in paths:
-            count = 0
-            for icon in (REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON):
-                full_path = os.path.join(os.path.join(path, 'reddit_monitor/icons'), icon)
-                
-                if os.path.exists(full_path):
-                    count += 1
-            
-            if count == 3:
-                return_value = os.path.join(os.path.join(path, 'reddit_monitor/icons'))
-                break
-    
-    return return_value
-
-
-def find_ui_definition():
-    '''Tries to find the XML GtkBuilder file in all the usual places. The first
-    place to be checked is the current working directory. If it's found we
-    assume that we're debugging. If the file can't be found this function
-    returns None.'''
-    
-    paths = os.environ['XDG_DATA_DIRS'].split(':')
-    return_value = None
-    
-    # This is mostly so that debugging isn't a pain in the ass.
-    local = os.path.join(os.getcwd(), 'reddit_tray_icon.ui')
-    
-    if os.path.exists(local):
-        return local
-    
-    else:
-        for path in paths:
-            full_path = os.path.join(path, 'reddit_monitor/reddit_tray_icon.ui')
-            
-            if os.path.exists(full_path):
-                return_value = full_path
-                break
-    
-    return return_value
+        NEW_MESSAGE_SOUND = os.path.join(rc_dir, resources[0])
+        REDDIT_ICON = os.path.join(rc_dir, resources[1])
+        NEW_MAIL_ICON = os.path.join(rc_dir, resources[2])
+        BUSY_ICON = os.path.join(rc_dir, resources[3])
+        UI_DEFINITION = os.path.join(rc_dir, resources[4])
+        return True
 
 
 def open_url(url):
@@ -611,25 +572,9 @@ def main(args):
         print 'Reddit Monitor requires GTK+ (and it\'s Python bindings) version 2.12 or higher.'
         sys.exit(1)
     
-    # We can't do anything if we can't find this file obviously.
-    ui = find_ui_definition()
-    if not ui:
-        print 'Unable to find the UI definition XML file. Reddit Monitor may be installed incorrectly.'
+    if not find_resources():
+        print 'Unable to find required files. Reddit Monitor may be installed incorrectly.'
         sys.exit(1)
-    else:
-        global UI_DEFINITION
-        UI_DEFINITION = ui
-    
-    # We need the icons too.
-    icons = find_icon_directory()
-    if not icons:
-        print 'Unable to find the icons. Reddit Monitor may be installed incorrectly.'
-        sys.exit(1)
-    else:
-        global REDDIT_ICON, NEW_MAIL_ICON, BUSY_ICON
-        REDDIT_ICON = os.path.join(icons, REDDIT_ICON)
-        NEW_MAIL_ICON = os.path.join(icons, NEW_MAIL_ICON)
-        BUSY_ICON = os.path.join(icons, BUSY_ICON)
     
     # Check to see if we have xdg-open.
     for path in os.environ.get('PATH').split(':'):
@@ -643,14 +588,6 @@ def main(args):
     # See if everything is in order to play some sounds:
     if gnome:
         gnome.sound_init(socket.gethostname())
-        
-        sounds = find_sounds_directory()
-        global NEW_MESSAGE_SOUND
-        
-        if sounds:
-            NEW_MESSAGE_SOUND = os.path.join(sounds, NEW_MESSAGE_SOUND)
-        else:
-            NEW_MESSAGE_SOUND = None
     
     if pynotify:
         pynotify.init('Reddit Monitor')
