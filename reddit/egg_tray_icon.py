@@ -21,6 +21,7 @@ class TooltipWidget(gtk.HBox):
         messages_label = gtk.Label()
         user_label = gtk.Label()
         
+        user_label.set_alignment(0, 0.5)
         karma_label.set_alignment(0, 0.5)
         comment_karma_label.set_alignment(0, 0.5)
         messages_label.set_alignment(0, 0.5)
@@ -31,11 +32,7 @@ class TooltipWidget(gtk.HBox):
         comment_karma_label.set_markup('Comment karma: <b>%d</b>' % self.app.comment_karma)
         
         if self.app.messages:
-            messages_label.show()
-            if len(self.app.messages) == 1:
-                messages_label.set_markup('New messages: <b>1</b>')
-            else:
-                messages_label.set_markup('New messages: <b>%d</b>' % len(self.app.messages))
+            messages_label.set_markup('New messages: <b>%d</b>' % len(self.app.messages))
         else:
             messages_label.set_markup('New messages: <b>0</b>')
         
