@@ -1,4 +1,5 @@
 *.pyc
+.debug
 test.py
 MANIFEST
 dist/*
