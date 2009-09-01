@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(
-    version = '0.2.0',
+    version = '0.3.0',
     name = 'reddit_monitor',
     
     description = 'Notifies you when you have new messages on reddit.',
@@ -18,7 +18,7 @@ setup(
     ],
     
     packages = [
-        'reddit',
+        'redditmonitor',
     ],
     
     scripts = [
