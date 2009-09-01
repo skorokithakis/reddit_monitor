@@ -183,8 +183,9 @@ class Application(object):
     checking = False
     logged_in = False
     
+    # TODO: Set the defaults here.
     options = {
-        'interval'                   : None,
+        'interval'                   : DEFAULT_CHECK_INTERVAL,
         'notify'                     : None,
         'remember_username_password' : None,
         'login_automatically'        : None,
@@ -204,6 +205,13 @@ class Application(object):
         else:
             parser = ConfigParser.SafeConfigParser()
             parser.read([config_file])
+            
+            self.options['interval'] = parser.getint('Reddit_Monitor', 'interval')
+            self.options['notify'] = parser.getboolean('Reddit_Monitor', 'notify')
+            self.options['remember_username_password'] = parser.getboolean('Reddit_Monitor', 'remember_username_password')
+            self.options['login_automatically'] = parser.getboolean('Reddit_Monitor', 'login_automatically')
+            self.options['sound'] = parser.getboolean('Reddit_Monitor', 'sound')
+            
             return parser
     
     def save_config(self):
@@ -212,15 +220,13 @@ class Application(object):
         if os.path.exists(config_file):
             os.remove(config_file)
         
-        parser = ConfigParser.SafeConfigParser()
-        parser.add_section('Reddit_Monitor')
-        # TODO: Use a loop; it's less ugly.
-        parser.set('Reddit_Monitor', 'interval', str(self.options['interval']))
-        parser.set('Reddit_Monitor', 'notify', str(self.options['notify']))
-        parser.set('Reddit_Monitor', 'remember_username_password', str(self.options['remember_username_password']))
-        parser.set('Reddit_Monitor', 'login_automatically', str(self.options['login_automatically']))
-        parser.set('Reddit_Monitor', 'sound', str(self.options['sound']))
-        parser.write(open(config_file, 'w'))
+        if not self.config.has_section('Reddit_Monitor'):
+            self.config.add_section('Reddit_Monitor')
+        
+        for key in self.options:
+            self.config.set('Reddit_Monitor', key, str(self.options[key]))
+        
+        self.config.write(open(config_file, 'w'))
     
     def check_keyring(self):
         try:
@@ -370,15 +376,13 @@ class ConfigDialog(object):
             self.widgets.get_object('ok_button').set_sensitive(False)
         
         if self.app.config:
-            self.widgets.get_object('update_spinbutton').set_value(self.app.config.getint('Reddit_Monitor', 'interval') / 60000)
-            self.widgets.get_object('notify_checkbutton').set_active(self.app.config.getboolean('Reddit_Monitor', 'notify'))
-            self.widgets.get_object('remember_checkbutton').set_active(self.app.config.getboolean('Reddit_Monitor', 'remember_username_password'))
-            self.widgets.get_object('sound_checkbutton').set_active(self.app.config.getboolean('Reddit_Monitor', 'sound'))
-            self.widgets.get_object('auto_checkbutton').set_active(self.app.config.getboolean('Reddit_Monitor', 'login_automatically'))
+            self.widgets.get_object('update_spinbutton').set_value(self.app.options['interval'] / 60000)
+            self.widgets.get_object('notify_checkbutton').set_active(self.app.options['notify'])
+            self.widgets.get_object('remember_checkbutton').set_active(self.app.options['remember_username_password'])
+            self.widgets.get_object('sound_checkbutton').set_active(self.app.options['sound'])
+            self.widgets.get_object('auto_checkbutton').set_active(self.app.options['login_automatically'])
         else:
             # Default values:
-            self.widgets.get_object('update_spinbutton').set_value(DEFAULT_CHECK_INTERVAL)
-            
             if keyring:
                 self.widgets.get_object('remember_checkbutton').set_active(True)
             
@@ -410,7 +414,6 @@ class ConfigDialog(object):
         self.widgets.connect_signals(signals)
         
         if username and password and self.app.options['login_automatically']:
-            # Log in automatically
             self.widgets.get_object('ok_button').clicked()
     
     def set_sensitive(self, bool):
