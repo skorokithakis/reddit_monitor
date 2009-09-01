@@ -168,7 +168,6 @@ class Application(object):
     config_dialog = None
     tooltip = None
     tray_icon = None
-    menu = None
     reddit = None
     worker = None
     timer = None
@@ -257,6 +256,7 @@ class Application(object):
             self.checking = True
             
             self.tray_icon.set_icon(BUSY_ICON)
+            self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(False)
             
             def check():
                 # This is run in a new thread to avoid blocking the UI if
@@ -270,6 +270,7 @@ class Application(object):
                     self.play_sound()
                 else:
                     self.tray_icon.set_icon(REDDIT_ICON)
+                    self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(True)
                 
                 self.checking = False
 
