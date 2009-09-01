@@ -2,7 +2,7 @@
 #Written by Phillip (Philluminati) Taylor. Mail to: Phillip.Taylor@bcs.org.uk
 #Licensed under the GNU General Public License version 3. Copies of the license can be found online.
 
-import cookielib, re, urllib, urllib2
+import cookielib, urllib, urllib2
 
 # Turns out simplejson is included in Python 2.6 and up as json.
 try:
@@ -16,7 +16,7 @@ except ImportError:
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
 REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
-REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/'
+REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/about.json'
 
 #Notes:
 #1. Could have better exception handling (i.e. some for 404, wrong password, other basic things)
@@ -35,9 +35,6 @@ class RedditBadJSONException(Exception):
     pass
 
 class Reddit(object):
-    
-    # Unfortunately there's no way to get 
-    karma_re = re.compile('<b>(\d+)</b></li><li class="comment-karma">comment karma: &#32;<b>(\d+)</b>')
     
     user = None
     
@@ -77,25 +74,26 @@ class Reddit(object):
     #if user == None then it tells you your own karma (provided you called login())
     #Returns a tuple (karma, comment_karma)
     def get_karma(self, user=None):
-        if user == None and not self.logged_in:
+        if not user and not self.logged_in:
             raise RedditNotLoggedInException('You must either specify a username or log in to get karma values.')
         
-        if user == None:
+        if not user :
             user = self.user
         
         try:
             req = urllib2.Request(REDDIT_PROFILE_PAGE % user, None, REDDIT_USER_AGENT)
-            page_contents = urllib2.urlopen(req).read()            
+            json_data = urllib2.urlopen(req).read()            
         
         except Exception, e:
             print 'Error is related to reading a profile page: %s' % e.message
             raise
         
-        results = self.karma_re.search(page_contents)
-        karma = int(results.group(1))
-        comment_karma = int(results.group(2))
-
-        return (karma, comment_karma)
+        try:
+            profile = simplejson.loads(json_data)
+            return (profile['data']['link_karma'], profile['data']['comment_karma'])
+        
+        except (KeyError, ValueError):
+            raise RedditBadJSONException('The JSON returned from reddit is incomplete. Perhpas the connection was interupted or reddit is down.')
 
 
     def get_new_mail(self):
