@@ -1,5 +1,24 @@
 import gtk
 
+# We can display a custom tooltip if egg.trayicon is available.
+# Install python-gnome2-extras to get it.
+try:
+    import egg.trayicon
+    from egg_tray_icon import EggTrayIcon
+except ImportError:
+    egg = None
+
+
+def TrayIcon(app, REDDIT_ICON, NEW_MAIL_ICON):
+    if egg:
+        return EggTrayIcon(app, PopupMenu(app), REDDIT_ICON, NEW_MAIL_ICON)
+    else:
+        return GtkTrayIcon(app)
+    
+    if app.messages:
+        app.play_sound()
+        app.show_notification()
+
 
 class SoundChooserButton(gtk.FileChooserButton):
     
@@ -64,7 +83,6 @@ class PopupMenu(object):
     
     app = None
     ui_manager = None
-    action_group = None
     
     def __init__(self, parent):
         self.app = parent
@@ -76,24 +94,24 @@ class PopupMenu(object):
             ('Quit', gtk.STOCK_QUIT, None, None, None, self.app.quit)
         ]
         
-        self.action_group = gtk.ActionGroup('Reddit Monitor')
-        self.action_group.add_actions(actions)
+        action_group = gtk.ActionGroup('Reddit Monitor')
+        action_group.add_actions(actions)
         
         ui = """
             <ui>
                 <popup name='TrayMenu'>
                     <menuitem action='Inbox' />
-                    <separator/>
+                    <separator />
                     <menuitem action='Refresh' />
                     <menuitem action='Reset' />
-                    <separator/>
+                    <separator />
                     <menuitem action='Quit' />
                 </popup>
             </ui>
         """
         
         self.ui_manager = gtk.UIManager()
-        self.ui_manager.insert_action_group(self.action_group, 0)
+        self.ui_manager.insert_action_group(action_group, 0)
         self.ui_manager.add_ui_from_string(ui)
     
     def popup(self, widget, button, activate_time, data=None):
