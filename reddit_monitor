@@ -24,13 +24,6 @@ try:
 except ImportError:
     pynotify = None
 
-# We can display a custom tooltip if egg.trayicon is available.
-# Install python-gnome2-extras to get it.
-try:
-    import egg.trayicon
-except ImportError:
-    egg = None
-
 # Saving the password in a secure manner is possible if we have gnome-keyring.
 try:
     import gnomekeyring as keyring
@@ -43,6 +36,11 @@ try:
     import socket
 except ImportError:
     gnome = None
+
+try:
+    import egg.trayicon
+except ImportError:
+    egg = None
 
 import redditmonitor
 import redditmonitor.ui
@@ -144,19 +142,54 @@ class Application(object):
     checking = False
     logged_in = False
     
-    # TODO: Set the defaults here.
     options = {
         'interval'                   : DEFAULT_CHECK_INTERVAL,
         'notify'                     : None,
         'remember_username_password' : None,
         'login_automatically'        : None,
-        'sound'                      : None
+        'sound'                      : None,
+    }
+    
+    resources = {
+        'reddit_icon'                : None,
+        'new_mail_icon'              : None,
+        'busy_icon'                  : None,
+        'ui_definition'              : None,
+        'sound_file'                 : None
+    }
+    
+    modules = {
+        'pynotify'                   : False,
+        'gnomekeyring'               : False,
+        'egg'                        : False,
+        'gnome'                      : False
     }
     
     def __init__(self):
+        if pynotify:
+            self.modules['pynotify'] = True
+        
+        if keyring:
+            self.modules['gnomekeyring'] = True
+        
+        if egg:
+            self.modules['egg'] = True
+        
+        if gnome:
+            self.modules['gnome'] = True
+        
+        self.load_resources()
+        
         self.config = self.load_config()
         self.reddit = redditmonitor.Reddit()
-        self.config_dialog = ConfigDialog(self, *self.check_keyring())
+        self.config_dialog = redditmonitor.ui.ConfigDialog(self, *self.check_keyring())
+    
+    def load_resources(self):
+        self.resources['reddit_icon'] = REDDIT_ICON
+        self.resources['new_mail_icon'] = NEW_MAIL_ICON
+        self.resources['busy_icon'] = BUSY_ICON
+        self.resources['ui_definition'] = UI_DEFINITION
+        self.resources['sound_file'] = NEW_MESSAGE_SOUND
     
     def load_config(self):
         config_file = os.path.expanduser('~/.config/reddit_monitor')
@@ -213,11 +246,56 @@ class Application(object):
         gtk.main_quit()
         sys.exit(0)
     
+    def login(self, username, password):
+        def check_logged_in():
+            if self.logged_in:
+                self.tray_icon = redditmonitor.ui.TrayIcon(self)
+                self.config_dialog.widgets.get_object('window').hide()
+                self.timer = TIMEOUT_ADD(self.options['interval'], self.update)
+                return False
+            else:
+                return True
+        
+        def login(username, password):
+            # This is run in a new thread to avoid blocking the UI if
+            # connecting to reddit takes a little while.
+            
+            self.logged_in = False
+            
+            try:
+                self.reddit.login(username, password)
+                self.config_dialog.widgets.get_object('message_label').set_text('Fetching karma scores...')
+                self.karma, self.comment_karma = self.reddit.get_karma()
+                self.config_dialog.widgets.get_object('message_label').set_text('Checking for new messages...')
+                self.messages = self.reddit.get_new_mail()
+                self.username = username
+                self.config_dialog.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % username)
+                
+                if self.options['remember_username_password']:
+                    self.save_keyring(username, password)
+                
+                self.save_config()
+                
+                self.logged_in = True
+            except redditmonitor.RedditInvalidUsernamePasswordException, e:
+                self.config_dialog.widgets.get_object('message_label').set_text(e.args[0])
+                self.config_dialog.set_sensitive(True)
+                self.config_dialog.widgets.get_object('username_entry').grab_focus()
+                
+                self.logged_in = False
+            finally:
+                self.checking = False
+        
+        IDLE_ADD(check_logged_in)
+        
+        self.worker = threading.Thread(target=login, args=(username, password))
+        self.worker.start()
+    
     def update(self, widget=None):
         if not self.checking:
             self.checking = True
             
-            self.tray_icon.set_icon(BUSY_ICON)
+            self.tray_icon.set_icon(self.resources['busy_icon'])
             self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(False)
             
             def check():
@@ -227,11 +305,11 @@ class Application(object):
                 self.karma, self.comment_karma = self.reddit.get_karma()
                 self.messages = self.reddit.get_new_mail()
                 if self.messages:
-                    self.tray_icon.set_icon(NEW_MAIL_ICON)
+                    self.tray_icon.set_icon(self.resources['reddit_icon'])
                     self.show_notification()
                     self.play_sound()
                 else:
-                    self.tray_icon.set_icon(REDDIT_ICON)
+                    self.tray_icon.set_icon(self.resources['reddit_icon'])
                     self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(True)
                 
                 self.checking = False
@@ -246,12 +324,12 @@ class Application(object):
             if file:
                 gnome.sound_play(file)
             else:
-                if NEW_MESSAGE_SOUND:
-                    gnome.sound_play(NEW_MESSAGE_SOUND)
+                if self.resources['sound_file']:
+                    gnome.sound_play(self.resources['sound_file'])
     
     def clear_messages(self, widget=None):
         self.messages = []
-        self.tray_icon.set_icon(REDDIT_ICON)
+        self.tray_icon.set_icon(self.resources['reddit_icon'])
     
     def go_to_inbox(self, widget):
         open_url(REDDIT_INBOX_USER_URL)
@@ -263,7 +341,7 @@ class Application(object):
             notification_body = 'from <b>%s</b>\n\n%s' % (latest_message['author'], latest_message['body'])
             self.notification = pynotify.Notification(latest_message['subject'], notification_body)
             self.notification.add_action('home', 'Inbox', self.inbox_clicked)
-            self.notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(REDDIT_ICON))
+            self.notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(self.resources['reddit_icon']))
             
             if latest_message['was_comment']:
                 self.notification.add_action('context', 'Context', self.context_clicked, latest_message['context'])
@@ -277,193 +355,6 @@ class Application(object):
     def context_clicked(self, n, action, context):
         open_url('http://www.reddit.com' + context)
         self.clear_messages()
-
-
-class ConfigDialog(object):
-    
-    app = None
-    widgets = None
-    sound_chooser = None
-    
-    def __init__(self, parent, username=None, password=None):
-        self.app = parent
-        
-        self.widgets = gtk.Builder()
-        self.widgets.add_from_file(UI_DEFINITION)
-        
-        self.widgets.get_object('message_label').set_line_wrap(True)
-        self.widgets.get_object('message_frame').hide()
-        
-        self.widgets.get_object('image').set_from_file(REDDIT_ICON)
-        
-        if not pynotify:
-            self.widgets.get_object('notify_checkbutton').set_active(False)
-            self.widgets.get_object('notify_checkbutton').hide()
-        
-        if not keyring:
-            self.widgets.get_object('remember_checkbutton').set_active(False)
-            self.widgets.get_object('remember_checkbutton').hide()
-            self.widgets.get_object('auto_checkbutton').set_active(False)
-            self.widgets.get_object('auto_checkbutton').hide()
-        
-        if username and password:
-            self.widgets.get_object('username_entry').set_text(username)
-            self.widgets.get_object('password_entry').set_text(password)
-            self.widgets.get_object('ok_button').grab_focus()
-        else:
-            self.widgets.get_object('username_entry').grab_focus()
-            self.widgets.get_object('ok_button').set_sensitive(False)
-        
-        if self.app.config:
-            self.widgets.get_object('update_spinbutton').set_value(self.app.options['interval'] / 60000)
-            self.widgets.get_object('notify_checkbutton').set_active(self.app.options['notify'])
-            self.widgets.get_object('remember_checkbutton').set_active(self.app.options['remember_username_password'])
-            self.widgets.get_object('sound_checkbutton').set_active(self.app.options['sound'])
-            self.widgets.get_object('auto_checkbutton').set_active(self.app.options['login_automatically'])
-        else:
-            # Default values:
-            if keyring:
-                self.widgets.get_object('remember_checkbutton').set_active(True)
-            
-            if pynotify:
-                self.widgets.get_object('notify_checkbutton').set_active(True)
-        
-        if NEW_MESSAGE_SOUND:
-            self.sound_chooser = redditmonitor.ui.SoundChooserButton(file=NEW_MESSAGE_SOUND)
-        else:
-            self.sound_chooser = redditmonitor.ui.SoundChooserButton()
-        
-        self.widgets.get_object('pack_filechooserbutton_here').pack_start(self.sound_chooser)
-        self.widgets.get_object('pack_filechooserbutton_here').show_all()
-        
-        self.widgets.get_object('username_entry').set_activates_default(True)
-        self.widgets.get_object('password_entry').set_activates_default(True)
-        self.widgets.get_object('update_spinbutton').set_activates_default(True)
-        
-        self.widgets.get_object('window').set_default(self.widgets.get_object('ok_button'))
-        self.widgets.get_object('window').show()
-        
-        signals = {
-            'on_cancel_button_activate'         : self.cancel,
-            'on_ok_button_activate'             : self.ok,
-            'on_entry_changed'                  : self.entry_contents_changed,
-            'on_remember_checkbutton_toggled'   : self.remember_toggled,
-            'on_sound_checkbutton_toggled'      : self.sound_toggled,
-        }
-        self.widgets.connect_signals(signals)
-        
-        if username and password and self.app.options['login_automatically']:
-            self.widgets.get_object('ok_button').clicked()
-    
-    def set_sensitive(self, bool):
-        self.widgets.get_object('username_entry').set_sensitive(bool)
-        self.widgets.get_object('password_entry').set_sensitive(bool)
-        self.widgets.get_object('remember_checkbutton').set_sensitive(bool)
-        self.widgets.get_object('auto_checkbutton').set_sensitive(bool)
-        self.widgets.get_object('notify_checkbutton').set_sensitive(bool)
-        self.widgets.get_object('sound_checkbutton').set_sensitive(bool)
-        self.widgets.get_object('update_spinbutton').set_sensitive(bool)
-        self.widgets.get_object('ok_button').set_sensitive(bool)
-        self.widgets.get_object('label3').set_sensitive(bool)
-        self.widgets.get_object('label4').set_sensitive(bool)
-        self.sound_chooser.set_sensitive(bool)
-        self.widgets.get_object('label6').set_sensitive(bool)
-    
-    def remember_toggled(self, widget):
-        if widget.get_active():
-            self.widgets.get_object('auto_checkbutton').set_sensitive(True)
-        else:
-            self.widgets.get_object('auto_checkbutton').set_sensitive(False)
-            self.widgets.get_object('auto_checkbutton').set_active(False)
-    
-    def sound_toggled(self, widget):
-        if widget.get_active():
-            self.sound_chooser.set_sensitive(True)
-            self.widgets.get_object('label6').set_sensitive(True)
-        else:
-            self.sound_chooser.set_sensitive(False)
-            self.widgets.get_object('label6').set_sensitive(False)
-    
-    def entry_contents_changed(self, widget):
-        if not len(self.widgets.get_object('username_entry').get_text()) >= 3 or not len(self.widgets.get_object('password_entry').get_text()) >= 3:
-            self.widgets.get_object('ok_button').set_sensitive(False)
-        else:
-            self.widgets.get_object('ok_button').set_sensitive(True)
-    
-    def cancel(self, widget, event=None):
-        gtk.main_quit()
-        sys.exit(0)
-    
-    def ok(self, widget):
-        if not self.app.checking:
-            self.app.checking = True
-            
-            self.set_sensitive(False)
-            
-            self.widgets.get_object('message_frame').show()
-            self.widgets.get_object('message_label').set_text('Logging in to reddit...')
-            
-            self.app.options['remember_username_password'] = self.widgets.get_object('remember_checkbutton').get_active()
-            self.app.options['login_automatically'] = self.widgets.get_object('auto_checkbutton').get_active()
-            self.app.options['notify'] = self.widgets.get_object('notify_checkbutton').get_active()
-            self.app.options['sound'] = self.widgets.get_object('sound_checkbutton').get_active()
-            self.app.options['interval'] = int(self.widgets.get_object('update_spinbutton').get_value()) * 60000
-            
-            def check_logged_in():
-                if self.app.logged_in:
-                    self.app.tray_icon = TrayIcon(self.app)
-                    self.widgets.get_object('window').hide()
-                    self.app.timer = TIMEOUT_ADD(self.app.options['interval'], self.app.update)
-                    return False
-                else:
-                    return True
-            
-            IDLE_ADD(check_logged_in)
-            
-            def login(username, password):
-                # This is run in a new thread to avoid blocking the UI if
-                # connecting to reddit takes a little while.
-                
-                self.app.logged_in = False
-                
-                try:
-                    self.app.reddit.login(username, password)
-                    self.widgets.get_object('message_label').set_text('Fetching karma scores...')
-                    self.app.karma, self.app.comment_karma = self.app.reddit.get_karma()
-                    self.widgets.get_object('message_label').set_text('Checking for new messages...')
-                    self.app.messages = self.app.reddit.get_new_mail()
-                    self.app.username = username
-                    self.widgets.get_object('message_label').set_markup('Logged in to reddit as <i>%s</i>.' % self.app.username)
-                    
-                    if self.app.options['remember_username_password']:
-                        self.app.save_keyring(username, password)
-                    self.app.save_config()
-                    
-                    self.app.logged_in = True
-                except redditmonitor.RedditInvalidUsernamePasswordException, e:
-                    self.widgets.get_object('message_label').set_text(e.args[0])
-                    self.set_sensitive(True)
-                    self.widgets.get_object('username_entry').grab_focus()
-                    
-                    self.app.logged_in = False
-                finally:
-                    self.app.checking = False
-                    
-            self.app.worker = threading.Thread(target=login, args=(self.widgets.get_object('username_entry').get_text(), self.widgets.get_object('password_entry').get_text()))
-            self.app.worker.start()
-
-
-def TrayIcon(app):
-    if egg:
-        from redditmonitor.egg_tray_icon import EggTrayIcon
-        global REDDIT_ICON, NEW_MAIL_ICON
-        return EggTrayIcon(app, redditmonitor.ui.PopupMenu(app), REDDIT_ICON, NEW_MAIL_ICON)
-    else:
-        return redditmonitor.ui.GtkTrayIcon(app)
-    
-    if app.messages:
-        app.play_sound()
-        app.show_notification()
 
 
 def main(args):

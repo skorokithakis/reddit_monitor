@@ -54,20 +54,18 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
     app = None
     icon = None
     menu = None
-    reddit_icon = None
     
-    def __init__(self, parent, menu, reddit_icon, mail_icon):
+    def __init__(self, parent, menu):
         egg.trayicon.TrayIcon.__init__(self, 'Reddit Monitor')
         
         self.app = parent
         self.menu = menu
-        self.reddit_icon = reddit_icon
         
         if self.app.messages:
-            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(mail_icon, 24, 24))
+            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(self.app.resources['new_mail_icon'], 24, 24))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
         else:
-            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(reddit_icon, 24, 24))
+            self.icon = gtk.image_new_from_pixbuf(gtk.gdk.pixbuf_new_from_file_at_size(self.app.resources['reddit_icon'], 24, 24))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
         
         event_box = gtk.EventBox()
@@ -81,7 +79,7 @@ class EggTrayIcon(egg.trayicon.TrayIcon):
         self.show_all()
     
     def show_tooltip(self, widget, x, y, keyboard_mode, tooltip):
-        tooltip.set_custom(TooltipWidget(self.app, self.reddit_icon))
+        tooltip.set_custom(TooltipWidget(self.app, self.app.resources['reddit_icon']))
         return True
     
     def button_pressed(self, widget, event):

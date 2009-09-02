@@ -2,46 +2,20 @@ import gtk
 
 # We can display a custom tooltip if egg.trayicon is available.
 # Install python-gnome2-extras to get it.
-try:
-    import egg.trayicon
-    from egg_tray_icon import EggTrayIcon
-except ImportError:
-    egg = None
+
+from config_dialog import ConfigDialog
 
 
-def TrayIcon(app, REDDIT_ICON, NEW_MAIL_ICON):
-    if egg:
-        return EggTrayIcon(app, PopupMenu(app), REDDIT_ICON, NEW_MAIL_ICON)
+def TrayIcon(app):
+    if app.modules['egg']:
+        from egg_tray_icon import EggTrayIcon
+        return EggTrayIcon(app, PopupMenu(app))
     else:
         return GtkTrayIcon(app)
     
     if app.messages:
         app.play_sound()
         app.show_notification()
-
-
-class SoundChooserButton(gtk.FileChooserButton):
-    
-    def __init__(self, file=None):
-        # FIXME: There's a bug here that I just can't get to the bottom of. It
-        #        could be in the GTK+ bindings themselves. If this is called
-        #        with a file, then the file filter will not be selected. Not a
-        #        huge deal but still annoying.
-        
-        gtk.FileChooserButton.__init__(self, title='Select Sound File')
-        
-        filter = gtk.FileFilter()
-        filter.set_name('All files')
-        filter.add_pattern('*')
-        self.add_filter(filter)
-        filter = gtk.FileFilter()
-        filter.set_name('Sound Files (*.wav)')
-        filter.add_pattern('*.wav')
-        self.add_filter(filter)
-        self.set_filter(filter)
-        
-        if file:
-            self.set_filename(file)
 
 
 class GtkTrayIcon(gtk.StatusIcon):
@@ -58,7 +32,7 @@ class GtkTrayIcon(gtk.StatusIcon):
         self.connect('popup-menu', self.menu.popup)
         
         if self.app.messages:
-            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(NEW_MAIL_ICON))
+            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(self.app.resources['new_mail_icon']))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
             
             if len(self.app.messages) == 1:
@@ -66,7 +40,7 @@ class GtkTrayIcon(gtk.StatusIcon):
             else:
                 messages_string = 'New messages: %d' % len(self.app.messages)
         else:
-            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(REDDIT_ICON))
+            self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(self.app.resources['reddit_icon']))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
             messages_string = 'New messages: 0'
         
