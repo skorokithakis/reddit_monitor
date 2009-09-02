@@ -13,6 +13,7 @@ except ImportError:
     except ImportError:
         raise ImportError('No module named json or simplejson')
 
+
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
 REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
@@ -34,7 +35,6 @@ class Reddit(object):
     user = None
     
     def __init__(self):
-        
         cookie_jar = cookielib.LWPCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie_jar))
         urllib2.install_opener(opener)
@@ -49,12 +49,8 @@ class Reddit(object):
             'user' : user
         })
         
-        try:
-            req = urllib2.Request(REDDIT_LOGIN_URL, params, REDDIT_USER_AGENT)
-            retval = urllib2.urlopen(req).read()
-        except Exception, e:
-            print "F*CK: %s", e.message
-            return False
+        req = urllib2.Request(REDDIT_LOGIN_URL, params, REDDIT_USER_AGENT)
+        retval = urllib2.urlopen(req).read()
         
         if retval.find('invalid password') != -1:
             self.logged_in = False
@@ -62,10 +58,6 @@ class Reddit(object):
         else:
             self.logged_in = True
         
-        return True
-        
-    #if user == None then it tells you your own karma (provided you called login())
-    #Returns a tuple (karma, comment_karma)
     def get_karma(self, user=None):
         if not user and not self.logged_in:
             raise RedditNotLoggedInException('You must either specify a username or log in to get karma values.')
@@ -73,13 +65,8 @@ class Reddit(object):
         if not user :
             user = self.user
         
-        try:
-            req = urllib2.Request(REDDIT_PROFILE_PAGE % user, None, REDDIT_USER_AGENT)
-            json_data = urllib2.urlopen(req).read()            
-        
-        except Exception, e:
-            print 'Error is related to reading a profile page: %s' % e.message
-            raise
+        req = urllib2.Request(REDDIT_PROFILE_PAGE % user, None, REDDIT_USER_AGENT)
+        json_data = urllib2.urlopen(req).read()            
         
         try:
             profile = simplejson.loads(json_data)
@@ -88,18 +75,12 @@ class Reddit(object):
         except (KeyError, ValueError):
             raise RedditBadJSONException('The JSON returned from reddit is incomplete. Perhpas the connection was interupted or reddit is down.')
 
-
     def get_new_mail(self):
         if not self.logged_in:
             raise RedditNotLoggedInException('You must be logged in to check for new messages.')
         
-        try:
-            req = urllib2.Request(REDDIT_INBOX_PAGE, None, REDDIT_USER_AGENT)
-            json_data = urllib2.urlopen(req).read()
-        
-        except Exception, e:
-            print 'Error is related to reading inbox page: %s' % e.message
-            raise
+        req = urllib2.Request(REDDIT_INBOX_PAGE, None, REDDIT_USER_AGENT)
+        json_data = urllib2.urlopen(req).read()
         
         try:
             inbox = simplejson.loads(json_data)
