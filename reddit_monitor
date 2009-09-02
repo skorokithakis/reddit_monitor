@@ -348,6 +348,12 @@ class Application(object):
             
             self.notification.show()
     
+    def toggle_notify(self, widget):
+        self.options['notify'] = widget.get_active()
+    
+    def toggle_sound(self, widget):
+        self.options['sound'] = widget.get_active()
+    
     def inbox_clicked(self, n, action):
         open_url(REDDIT_INBOX_USER_URL)
         self.clear_messages()

@@ -1,8 +1,5 @@
 import gtk
 
-# We can display a custom tooltip if egg.trayicon is available.
-# Install python-gnome2-extras to get it.
-
 from config_dialog import ConfigDialog
 
 
@@ -62,14 +59,20 @@ class PopupMenu(object):
         self.app = parent
         
         actions = [
-            ('Inbox', gtk.STOCK_HOME, 'Go to inbox', None, None, self.app.go_to_inbox),
-            ('Refresh', gtk.STOCK_REFRESH, 'Check for messages', None, None, self.app.update),
-            ('Reset', gtk.STOCK_CLEAR, 'Mark as read', None, None, self.app.clear_messages),
+            ('Inbox', gtk.STOCK_HOME, 'Go to _inbox', None, None, self.app.go_to_inbox),
+            ('Refresh', gtk.STOCK_REFRESH, '_Check for messages', None, None, self.app.update),
+            ('Reset', gtk.STOCK_CLEAR, 'Mark as _read', None, None, self.app.clear_messages),
             ('Quit', gtk.STOCK_QUIT, None, None, None, self.app.quit)
+        ]
+        
+        toggle_actions = [
+            ('Notify', None, '_Show notifications', None, None, self.app.toggle_notify),
+            ('Sound', None, '_Play sounds', None, None, self.app.toggle_sound),
         ]
         
         action_group = gtk.ActionGroup('Reddit Monitor')
         action_group.add_actions(actions)
+        action_group.add_toggle_actions(toggle_actions)
         
         ui = """
             <ui>
@@ -79,6 +82,9 @@ class PopupMenu(object):
                     <menuitem action='Refresh' />
                     <menuitem action='Reset' />
                     <separator />
+                    <menuitem action='Notify' />
+                    <menuitem action='Sound' />
+                    <separator />
                     <menuitem action='Quit' />
                 </popup>
             </ui>
@@ -87,6 +93,9 @@ class PopupMenu(object):
         self.ui_manager = gtk.UIManager()
         self.ui_manager.insert_action_group(action_group, 0)
         self.ui_manager.add_ui_from_string(ui)
+        
+        self.ui_manager.get_widget('/TrayMenu/Notify').set_active(self.app.options['notify'])
+        self.ui_manager.get_widget('/TrayMenu/Sound').set_active(self.app.options['sound'])
     
     def popup(self, widget, button, activate_time, data=None):
         self.ui_manager.get_widget('/TrayMenu').popup(None, None, None, button, activate_time)
