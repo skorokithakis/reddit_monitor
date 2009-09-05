@@ -96,6 +96,12 @@ class PopupMenu(object):
         
         self.ui_manager.get_widget('/TrayMenu/Notify').set_active(self.app.options['notify'])
         self.ui_manager.get_widget('/TrayMenu/Sound').set_active(self.app.options['sound'])
+        
+        if not self.app.modules['pynotify']:
+            self.ui_manager.get_widget('/TrayMenu/Notify').set_visible(False)
+        
+        if not self.app.modules['gnome']:
+            self.ui_manager.get_widget('/TrayMenu/Sound').set_visible(False)
     
     def popup(self, widget, button, activate_time, data=None):
         self.ui_manager.get_widget('/TrayMenu').popup(None, None, None, button, activate_time)
