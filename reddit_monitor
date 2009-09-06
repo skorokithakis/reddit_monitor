@@ -296,9 +296,12 @@ class Application(object):
             self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(False)
             
             def check():
+                messages_len = len(self.messages)
+                
                 self.karma, self.comment_karma = self.reddit.get_karma()
                 self.messages = self.reddit.get_new_mail()
-                if self.messages:
+                
+                if len(self.messages) > messages_len:
                     self.tray_icon.set_icon(self.resources['new_mail_icon'])
                     self.show_notification()
                     self.play_sound()
