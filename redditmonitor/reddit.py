@@ -16,7 +16,7 @@ except ImportError:
 
 REDDIT_USER_AGENT = { 'User-agent': 'Mozilla/4.0 (compatible; MSIE5.5; Windows NT' }
 REDDIT_LOGIN_URL = 'http://www.reddit.com/api/login'
-REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json?mark=false'
+REDDIT_INBOX_PAGE = 'http://www.reddit.com/message/inbox/.json'
 REDDIT_PROFILE_PAGE = 'http://www.reddit.com/user/%s/about.json'
 
 
@@ -79,7 +79,9 @@ class Reddit(object):
         if not self.logged_in:
             raise RedditNotLoggedInException('You must be logged in to check for new messages.')
         
-        req = urllib2.Request(REDDIT_INBOX_PAGE, None, REDDIT_USER_AGENT)
+        url = '%s?mark=false' % REDDIT_INBOX_PAGE
+        
+        req = urllib2.Request(url, None, REDDIT_USER_AGENT)
         json_data = urllib2.urlopen(req).read()
         
         try:
@@ -89,3 +91,10 @@ class Reddit(object):
         
         except (KeyError, ValueError):
             raise RedditBadJSONException('The JSON returned from reddit is incomplete. Perhpas the connection was interupted or reddit is down.')
+    
+    def mark_messages_as_read(self):
+        if not self.logged_in:
+            raise RedditNotLoggedInException('You must be logged in to check for new messages.')
+        
+        req = urllib2.Request(REDDIT_INBOX_PAGE, None, REDDIT_USER_AGENT)
+        urllib2.urlopen(req).read()

@@ -328,8 +328,21 @@ class Application(object):
                     gnome.sound_play(self.resources['sound_file'])
     
     def clear_messages(self, widget=None):
-        self.messages = []
-        self.tray_icon.set_icon(self.resources['reddit_icon'])
+        if not self.checking:
+            self.checking = True
+            
+            def mark():
+                self.tray_icon.set_icon(self.resources['busy_icon'])
+                
+                self.reddit.mark_messages_as_read()
+                
+                self.tray_icon.set_icon(self.resources['reddit_icon'])
+                self.messages = []
+                
+                self.checking = False
+            
+            self.worker = threading.Thread(target=mark)
+            self.worker.start()
     
     def go_to_inbox(self, widget):
         open_url(REDDIT_INBOX_USER_URL)
