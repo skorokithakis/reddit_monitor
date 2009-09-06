@@ -32,10 +32,7 @@ class GtkTrayIcon(gtk.StatusIcon):
             self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(self.app.resources['new_mail_icon']))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
             
-            if len(self.app.messages) == 1:
-                messages_string = 'New messages: 1'
-            else:
-                messages_string = 'New messages: %d' % len(self.app.messages)
+            messages_string = 'New messages: %d' % len(self.app.messages)
         else:
             self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(self.app.resources['reddit_icon']))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)

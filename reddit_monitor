@@ -257,9 +257,6 @@ class Application(object):
                 return True
         
         def login(username, password):
-            # This is run in a new thread to avoid blocking the UI if
-            # connecting to reddit takes a little while.
-            
             self.logged_in = False
             
             try:
@@ -299,18 +296,21 @@ class Application(object):
             self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(False)
             
             def check():
-                # This is run in a new thread to avoid blocking the UI if
-                # connecting to reddit takes a little while.
-                
                 self.karma, self.comment_karma = self.reddit.get_karma()
                 self.messages = self.reddit.get_new_mail()
                 if self.messages:
-                    self.tray_icon.set_icon(self.resources['reddit_icon'])
+                    self.tray_icon.set_icon(self.resources['new_mail_icon'])
                     self.show_notification()
                     self.play_sound()
                 else:
                     self.tray_icon.set_icon(self.resources['reddit_icon'])
-                    self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(True)
+                
+                if self.messages:
+                    self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
+                else:
+                    self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
+                
+                self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(True)
                 
                 self.checking = False
 
