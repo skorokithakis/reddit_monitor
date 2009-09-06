@@ -301,10 +301,12 @@ class Application(object):
                 self.karma, self.comment_karma = self.reddit.get_karma()
                 self.messages = self.reddit.get_new_mail()
                 
-                if len(self.messages) > messages_len:
+                if self.messages:
                     self.tray_icon.set_icon(self.resources['new_mail_icon'])
-                    self.show_notification()
-                    self.play_sound()
+                    
+                    if len(self.messages) > messages_len:
+                        self.show_notification()
+                        self.play_sound()
                 else:
                     self.tray_icon.set_icon(self.resources['reddit_icon'])
                 
