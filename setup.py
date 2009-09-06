@@ -2,6 +2,16 @@
 
 from distutils.core import setup
 
+def make_readme():
+    '''Makes a plaintext README file from the markdown version.'''
+    pass
+
+def remove_reddit_module():
+    '''0.1.0 and 0.2.0 installed a module named reddit which has been replaced
+    by redditmonitor. If it's still installed this function will delete it.'''
+    pass
+
+
 setup(
     version = '0.3.0',
     name = 'reddit_monitor',
