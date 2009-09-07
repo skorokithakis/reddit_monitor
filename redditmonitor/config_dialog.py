@@ -61,18 +61,20 @@ class ConfigDialog(object):
             self.widgets.get_object('ok_button').set_sensitive(False)
         
         if self.app.config:
-            self.widgets.get_object('update_spinbutton').set_value(self.app.options['interval'] / 60000)
             self.widgets.get_object('notify_checkbutton').set_active(self.app.options['notify'])
             self.widgets.get_object('remember_checkbutton').set_active(self.app.options['remember_username_password'])
             self.widgets.get_object('sound_checkbutton').set_active(self.app.options['sound'])
             self.widgets.get_object('auto_checkbutton').set_active(self.app.options['login_automatically'])
         else:
+            
             # Default values:
             if self.app.modules['gnomekeyring']:
                 self.widgets.get_object('remember_checkbutton').set_active(True)
             
             if self.app.modules['pynotify']:
                 self.widgets.get_object('notify_checkbutton').set_active(True)
+        
+        self.widgets.get_object('update_spinbutton').set_value(self.app.options['interval'] / 60000)
         
         if self.app.resources['sound_file']:
             self.sound_chooser = SoundChooserButton(file=self.app.resources['sound_file'])
