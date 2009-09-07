@@ -223,14 +223,17 @@ class Application(object):
         self.config.write(open(config_file, 'w'))
     
     def check_keyring(self):
-        try:
-            creds = keyring.find_items_sync(keyring.ITEM_GENERIC_SECRET,
-                                           {'app_ident' : 'Reddit Monitor'})
-            
-            # TODO: Provide a drop-down menu of all the available usernames.
-            #       We're selecting the newest one out of laziness.
-            return creds[0].attributes['username'], creds[0].secret
-        except keyring.NoMatchError:
+        if self.modules['gnomekeyring']:
+            try:
+                creds = keyring.find_items_sync(keyring.ITEM_GENERIC_SECRET,
+                                               {'app_ident' : 'Reddit Monitor'})
+                
+                # TODO: Provide a drop-down menu of all the available usernames.
+                #       We're selecting the newest one out of laziness.
+                return creds[0].attributes['username'], creds[0].secret
+            except keyring.NoMatchError:
+                return None, None
+        else:
             return None, None
     
     def save_keyring(self, username, password):
