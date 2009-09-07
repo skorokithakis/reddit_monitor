@@ -216,6 +216,9 @@ class Application(object):
         if os.path.exists(config_file):
             os.remove(config_file)
         
+        if not self.config:
+			self.config = ConfigParser.SafeConfigParser()
+        
         if not self.config.has_section('Reddit_Monitor'):
             self.config.add_section('Reddit_Monitor')
         
