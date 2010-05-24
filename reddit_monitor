@@ -50,7 +50,7 @@ REDDIT_ICON             = 'reddit_trans.png'
 NEW_MAIL_ICON           = 'new_mail_trans.png'
 BUSY_ICON               = 'busy.gif'
 DEFAULT_CHECK_INTERVAL  = 10 # Minutes
-REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/inbox'
+REDDIT_INBOX_USER_URL   = 'http://www.reddit.com/message/unread/'
 NEW_MESSAGE_SOUND       = 'message-new-instant.wav'
 UI_DEFINITION           = 'reddit_tray_icon.ui'
 
