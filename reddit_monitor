@@ -82,6 +82,7 @@ def find_resources():
         return True
     
     paths = os.environ['XDG_DATA_DIRS'].split(':')
+    paths.append("..")
     
     found = []
     
