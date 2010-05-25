@@ -1,7 +1,9 @@
 import gtk
+import locale
 
 from config_dialog import ConfigDialog
 
+locale.setlocale(locale.LC_ALL, "")
 
 def TrayIcon(app):
     if app.modules['egg']:
@@ -38,7 +40,7 @@ class GtkTrayIcon(gtk.StatusIcon):
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
             messages_string = 'New messages: 0'
         
-        tooltip_string = '%s\nKarma: %d\nComment karma: %d\n%s' % (self.app.username, self.app.karma, self.app.comment_karma, messages_string)
+        tooltip_string = '%s\nKarma: %s\nComment karma: %s\n%s' % (self.app.username, locale.format('%d', self.app.karma, True), locale.format('%d', self.app.comment_karma, True), messages_string)
         self.set_tooltip(tooltip_string)
         
         self.set_visible(True)
