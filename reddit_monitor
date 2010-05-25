@@ -147,6 +147,7 @@ class Application(object):
         'interval'                   : None,
         'notify'                     : None,
         'balloon'                    : None,
+        'karma'                      : None,
         'remember_username_password' : None,
         'login_automatically'        : None,
         'sound'                      : None,
@@ -207,6 +208,7 @@ class Application(object):
             self.options['interval'] = parser.getint('Reddit_Monitor', 'interval')
             self.options['notify'] = parser.getboolean('Reddit_Monitor', 'notify')
             self.options['balloon'] = parser.getboolean('Reddit_Monitor', 'balloon')
+            self.options['karma'] = parser.getboolean('Reddit_Monitor', 'karma')
             self.options['remember_username_password'] = parser.getboolean('Reddit_Monitor', 'remember_username_password')
             self.options['login_automatically'] = parser.getboolean('Reddit_Monitor', 'login_automatically')
             self.options['sound'] = parser.getboolean('Reddit_Monitor', 'sound')
@@ -309,7 +311,8 @@ class Application(object):
             def check():
                 messages_len = len(self.messages)
                 
-                self.karma, self.comment_karma = self.reddit.get_karma()
+                if self.options["karma"]:
+                    self.karma, self.comment_karma = self.reddit.get_karma()
                 self.messages = self.reddit.get_new_mail()
                 
                 if self.messages:

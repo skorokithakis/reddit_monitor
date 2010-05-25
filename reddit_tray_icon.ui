@@ -175,6 +175,19 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkCheckButton" id="karma_checkbutton">
+                            <property name="label" translatable="yes">Update _karma (a bit slower)</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="use_underline">True</property>
+                            <property name="draw_indicator">True</property>
+                          </object>
+                          <packing>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkCheckButton" id="sound_checkbutton">
                             <property name="label" translatable="yes">_Play a sound when a new message is received</property>
                             <property name="visible">True</property>
@@ -185,7 +198,7 @@
                             <signal name="toggled" handler="on_sound_checkbutton_toggled"/>
                           </object>
                           <packing>
-                            <property name="position">4</property>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                         <child>
@@ -217,7 +230,7 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="position">5</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                         <child>
@@ -263,7 +276,7 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">False</property>
-                            <property name="position">6</property>
+                            <property name="position">7</property>
                           </packing>
                         </child>
                       </object>
