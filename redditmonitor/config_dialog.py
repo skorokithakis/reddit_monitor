@@ -44,7 +44,9 @@ class ConfigDialog(object):
         
         if not self.app.modules['pynotify']:
             self.widgets.get_object('notify_checkbutton').set_active(False)
+            self.widgets.get_object('balloon_checkbutton').set_active(False)
             self.widgets.get_object('notify_checkbutton').hide()
+            self.widgets.get_object('balloon_checkbutton').hide()
         
         if not self.app.modules['gnomekeyring']:
             self.widgets.get_object('remember_checkbutton').set_active(False)
@@ -62,6 +64,7 @@ class ConfigDialog(object):
         
         if self.app.config:
             self.widgets.get_object('notify_checkbutton').set_active(self.app.options['notify'])
+            self.widgets.get_object('balloon_checkbutton').set_active(self.app.options['balloon'])
             self.widgets.get_object('remember_checkbutton').set_active(self.app.options['remember_username_password'])
             self.widgets.get_object('sound_checkbutton').set_active(self.app.options['sound'])
             self.widgets.get_object('auto_checkbutton').set_active(self.app.options['login_automatically'])
@@ -73,6 +76,7 @@ class ConfigDialog(object):
             
             if self.app.modules['pynotify']:
                 self.widgets.get_object('notify_checkbutton').set_active(True)
+                self.widgets.get_object('balloon_checkbutton').set_active(True)
         
         self.widgets.get_object('update_spinbutton').set_value(self.app.options['interval'] / 60000)
         
@@ -110,6 +114,7 @@ class ConfigDialog(object):
         self.widgets.get_object('auto_checkbutton').set_sensitive(bool)
         self.widgets.get_object('notify_checkbutton').set_sensitive(bool)
         self.widgets.get_object('sound_checkbutton').set_sensitive(bool)
+        self.widgets.get_object('balloon_checkbutton').set_sensitive(bool)
         self.widgets.get_object('update_spinbutton').set_sensitive(bool)
         self.widgets.get_object('ok_button').set_sensitive(bool)
         self.widgets.get_object('label3').set_sensitive(bool)
@@ -153,6 +158,7 @@ class ConfigDialog(object):
             self.app.options['remember_username_password'] = self.widgets.get_object('remember_checkbutton').get_active()
             self.app.options['login_automatically'] = self.widgets.get_object('auto_checkbutton').get_active()
             self.app.options['notify'] = self.widgets.get_object('notify_checkbutton').get_active()
+            self.app.options['balloon'] = self.widgets.get_object('balloon_checkbutton').get_active()
             self.app.options['sound'] = self.widgets.get_object('sound_checkbutton').get_active()
             self.app.options['interval'] = int(self.widgets.get_object('update_spinbutton').get_value()) * 60000
             

@@ -146,6 +146,7 @@ class Application(object):
     options = {
         'interval'                   : None,
         'notify'                     : None,
+        'balloon'                    : None,
         'remember_username_password' : None,
         'login_automatically'        : None,
         'sound'                      : None,
@@ -205,6 +206,7 @@ class Application(object):
             
             self.options['interval'] = parser.getint('Reddit_Monitor', 'interval')
             self.options['notify'] = parser.getboolean('Reddit_Monitor', 'notify')
+            self.options['balloon'] = parser.getboolean('Reddit_Monitor', 'balloon')
             self.options['remember_username_password'] = parser.getboolean('Reddit_Monitor', 'remember_username_password')
             self.options['login_automatically'] = parser.getboolean('Reddit_Monitor', 'login_automatically')
             self.options['sound'] = parser.getboolean('Reddit_Monitor', 'sound')
@@ -369,9 +371,10 @@ class Application(object):
             self.notification = pynotify.Notification(latest_message['subject'], notification_body)
             self.notification.set_icon_from_pixbuf(gtk.gdk.pixbuf_new_from_file(self.resources['reddit_icon']))
             
-            #self.notification.add_action('home', 'Inbox', self.inbox_clicked)
-            #if latest_message['was_comment']:
-            #    self.notification.add_action('context', 'Context', self.context_clicked, latest_message['context'])
+            if not self.options["balloon"]:
+                self.notification.add_action('home', 'Inbox', self.inbox_clicked)
+                if latest_message['was_comment']:
+                    self.notification.add_action('context', 'Context', self.context_clicked, latest_message['context'])
             
             self.notification.show()
     
