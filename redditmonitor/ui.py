@@ -30,6 +30,10 @@ class GtkTrayIcon(gtk.StatusIcon):
         
         self.connect('popup-menu', self.menu.popup)
         
+        self.refresh()
+        self.set_visible(True)
+    
+    def refresh(self):
         if self.app.messages:
             self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(self.app.resources['new_mail_icon']))
             self.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(True)
@@ -42,9 +46,7 @@ class GtkTrayIcon(gtk.StatusIcon):
         
         tooltip_string = '%s\nKarma: %s\nComment karma: %s\n%s' % (self.app.username, locale.format('%d', self.app.karma, True), locale.format('%d', self.app.comment_karma, True), messages_string)
         self.set_tooltip(tooltip_string)
-        
-        self.set_visible(True)
-    
+
     def set_icon(self, path):
         self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(path))
 

@@ -318,7 +318,7 @@ class Application(object):
                 if self.messages:
                     self.tray_icon.set_icon(self.resources['new_mail_icon'])
                     
-                    if len(self.messages) > messages_len:
+                    if len(self.messages) != messages_len:
                         self.show_notification()
                         self.play_sound()
                 else:
@@ -330,6 +330,7 @@ class Application(object):
                     self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Reset').set_sensitive(False)
                 
                 self.tray_icon.menu.ui_manager.get_widget('/TrayMenu/Refresh').set_sensitive(True)
+                self.tray_icon.refresh()
                 
                 self.checking = False
 
